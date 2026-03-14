@@ -210,6 +210,160 @@
       background: #151a22;
       margin-top: 14px;
     }
+    .auth-overlay {
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(circle at top, rgba(77,149,255,.2), transparent 32%),
+        rgba(4, 7, 13, .82);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      z-index: 20;
+      backdrop-filter: blur(10px);
+    }
+    .auth-overlay.hidden { display: none; }
+    .auth-card {
+      width: min(100%, 720px);
+      padding: 34px 28px;
+      background: #17191f;
+      border: 1px solid #2b3342;
+      border-radius: 28px;
+      box-shadow: 0 24px 60px rgba(0,0,0,.35);
+      text-align: center;
+    }
+    .auth-mark {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 18px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      font-size: 30px;
+      font-weight: 800;
+      color: #8fc4ff;
+      border: 1px solid rgba(77,149,255,.45);
+      background: rgba(77,149,255,.08);
+    }
+    .auth-subtitle {
+      color: var(--muted);
+      max-width: 560px;
+      margin: 10px auto 24px;
+      line-height: 1.6;
+    }
+    .auth-button {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 14px 18px;
+      background: #f6f8fb;
+      color: #1d2939;
+      border: none;
+      border-radius: 18px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .auth-button.secondary {
+      background: #ffffff;
+    }
+    .auth-button-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-align: left;
+    }
+    .auth-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 16px;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+    .auth-icon.google {
+      background: #fff;
+      color: #ea4335;
+      border: 1px solid #d7dce5;
+    }
+    .auth-icon.ms {
+      border-radius: 8px;
+      background:
+        linear-gradient(90deg, #f25022 0 50%, #7fba00 50%),
+        linear-gradient(90deg, #00a4ef 0 50%, #ffb900 50%);
+      background-size: 100% 50%, 100% 50%;
+      background-position: top, bottom;
+      background-repeat: no-repeat;
+      color: transparent;
+    }
+    .auth-button small {
+      display: block;
+      color: #667085;
+      font-weight: 500;
+      margin-top: 2px;
+    }
+    .auth-link {
+      margin-top: 18px;
+      color: var(--muted);
+    }
+    .auth-link a {
+      color: var(--accent-2);
+      text-decoration: none;
+    }
+    .auth-error {
+      min-height: 20px;
+      margin-top: 12px;
+      color: #ff9f9f;
+      font-size: 13px;
+    }
+    .google-signin-slot {
+      display: flex;
+      justify-content: center;
+      margin-top: 12px;
+    }
+    .account-card {
+      border: 1px solid #2a323e;
+      border-radius: 18px;
+      padding: 14px;
+      background: #151a22;
+      margin-bottom: 14px;
+    }
+    .account-card.hidden { display: none; }
+    .account-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .account-avatar {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: #0f141c;
+      border: 1px solid #323c4b;
+    }
+    .account-meta {
+      flex: 1;
+      min-width: 0;
+    }
+    .account-name {
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .account-email {
+      color: var(--muted);
+      font-size: 12px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .ghost-button {
+      margin-top: 12px;
+      background: #11161d;
+      color: var(--text);
+    }
     @media (max-width: 1100px) {
       .layout { grid-template-columns: 1fr; }
       .preview-card { min-height: auto; }
@@ -217,6 +371,40 @@
   </style>
 </head>
 <body>
+  <div class="auth-overlay" id="authOverlay">
+    <div class="auth-card">
+      <div class="auth-mark">A</div>
+      <h1>Unleash AI Power</h1>
+      <p class="auth-subtitle">Sign in with Google so each person can use their own Gemini API free tier and keep their key separated inside this browser.</p>
+
+      <button class="auth-button" id="googleLaunchBtn" type="button">
+        <span class="auth-button-left">
+          <span class="auth-icon google">G</span>
+          <span>
+            Sign in with Google
+            <small>Use your own Google account and Gemini key</small>
+          </span>
+        </span>
+        <span>&rsaquo;</span>
+      </button>
+
+      <button class="auth-button secondary" id="microsoftInfoBtn" type="button">
+        <span class="auth-button-left">
+          <span class="auth-icon ms">MS</span>
+          <span>
+            Microsoft option
+            <small>Placeholder only for now</small>
+          </span>
+        </span>
+        <span>&rsaquo;</span>
+      </button>
+
+      <div class="google-signin-slot" id="googleSigninSlot"></div>
+      <div class="auth-link">Already connected before? <a href="#" id="restoreSessionLink">Restore saved session</a></div>
+      <div class="auth-error" id="authError"></div>
+    </div>
+  </div>
+
   <div class="app">
     <div class="header">
       <div class="title-wrap">
@@ -299,11 +487,23 @@
       <div class="panel">
         <div class="section-title">
           <h2>Gemini API</h2>
-          <p>Each user enters their own key. No key is stored on the server.</p>
+          <p>Each user signs in with Google and uses their own key. No key is stored on the server.</p>
+        </div>
+
+        <div class="account-card hidden" id="accountCard">
+          <div class="account-row">
+            <img class="account-avatar" id="accountAvatar" alt="Account avatar">
+            <div class="account-meta">
+              <div class="account-name" id="accountName">Guest</div>
+              <div class="account-email" id="accountEmail">No account connected</div>
+            </div>
+          </div>
+          <button class="ghost-button" id="signOutBtn" type="button">Sign out</button>
         </div>
 
         <div class="label">Gemini API Key</div>
         <input type="password" id="apiKeyInput" placeholder="Enter GEMINI_API_KEY">
+        <div class="muted" id="apiKeyHint" style="margin-top: 8px;">Sign in first. The key will be remembered per Google account in this browser only.</div>
 
         <div class="label">Image Model</div>
         <input type="text" id="imageModelInput" value="{{ image_model }}" readonly>
@@ -365,10 +565,33 @@
     const timeSelect = document.getElementById("timeSelect");
     const weatherSelect = document.getElementById("weatherSelect");
     const renderStyleSelect = document.getElementById("renderStyleSelect");
+    const authOverlay = document.getElementById("authOverlay");
+    const authError = document.getElementById("authError");
+    const googleLaunchBtn = document.getElementById("googleLaunchBtn");
+    const microsoftInfoBtn = document.getElementById("microsoftInfoBtn");
+    const restoreSessionLink = document.getElementById("restoreSessionLink");
+    const googleSigninSlot = document.getElementById("googleSigninSlot");
+    const accountCard = document.getElementById("accountCard");
+    const accountAvatar = document.getElementById("accountAvatar");
+    const accountName = document.getElementById("accountName");
+    const accountEmail = document.getElementById("accountEmail");
+    const signOutBtn = document.getElementById("signOutBtn");
+    const apiKeyHint = document.getElementById("apiKeyHint");
+    const googleClientId = "{{ google_client_id }}";
 
     let activePreset = document.querySelector(".preset.active")?.dataset.preset || "festive-urban-residence";
     let sourceImageDataUrl = "";
     let generatedImageDataUrl = "";
+    let activeUser = null;
+
+    const STORAGE_KEYS = {
+      user: "ai-house-active-user",
+      profilePrefix: "ai-house-profile:",
+      keyPrefix: "ai-house-gemini-key:"
+    };
+
+    setAuthLockedState(true);
+    initializeAuth();
 
     presets.forEach(card => {
       card.addEventListener("click", () => {
@@ -394,6 +617,7 @@
     });
 
     document.getElementById("testBtn").addEventListener("click", async () => {
+      if (!ensureSignedIn()) return;
       await runRequest("/api/test-key", {
         apiKey: apiKeyInput.value,
         modelName: document.getElementById("textModelInput").value
@@ -401,6 +625,7 @@
     });
 
     document.getElementById("analyzeBtn").addEventListener("click", async () => {
+      if (!ensureSignedIn()) return;
       const response = await runRequest("/api/analyze", buildPayload(), "TEXT OK", true);
       if (response && response.ok) {
         if (response.refinedPrompt) {
@@ -413,6 +638,7 @@
     });
 
     document.getElementById("generateBtn").addEventListener("click", async () => {
+      if (!ensureSignedIn()) return;
       const response = await runRequest("/api/generate", buildPayload(), "GENERATED", false);
       if (response && response.ok && response.imageDataUrl) {
         generatedImageDataUrl = response.imageDataUrl;
@@ -444,6 +670,49 @@
       link.click();
     });
 
+    apiKeyInput.addEventListener("input", () => {
+      if (!activeUser?.email) return;
+      localStorage.setItem(`${STORAGE_KEYS.keyPrefix}${activeUser.email}`, apiKeyInput.value);
+    });
+
+    googleLaunchBtn.addEventListener("click", () => {
+      authError.textContent = "";
+      if (!googleClientId) {
+        authError.textContent = "Missing GOOGLE_CLIENT_ID on the server. Add it to enable Google sign-in.";
+        return;
+      }
+      if (!window.google?.accounts?.id) {
+        authError.textContent = "Google sign-in script is not ready yet. Refresh and try again.";
+        return;
+      }
+      window.google.accounts.id.prompt();
+    });
+
+    microsoftInfoBtn.addEventListener("click", () => {
+      authError.textContent = "Microsoft sign-in is not implemented yet. Google sign-in is ready for this flow.";
+    });
+
+    restoreSessionLink.addEventListener("click", event => {
+      event.preventDefault();
+      restoreSession();
+    });
+
+    signOutBtn.addEventListener("click", () => {
+      if (window.google?.accounts?.id) {
+        window.google.accounts.id.disableAutoSelect();
+      }
+      localStorage.removeItem(STORAGE_KEYS.user);
+      activeUser = null;
+      apiKeyInput.value = "";
+      renderAccount();
+      setAuthLockedState(true);
+      authOverlay.classList.remove("hidden");
+      authError.textContent = "Signed out. Sign in again to continue.";
+      sessionState.textContent = "SIGN IN";
+      statusText.textContent = "Sign in with Google to use your own Gemini API free tier.";
+      summaryText.textContent = "";
+    });
+
     function buildPayload() {
       return {
         apiKey: apiKeyInput.value,
@@ -457,7 +726,138 @@
       };
     }
 
+    function initializeAuth() {
+      restoreSession();
+      if (!googleClientId) {
+        authError.textContent = "Google sign-in is disabled until GOOGLE_CLIENT_ID is configured.";
+        sessionState.textContent = "AUTH SETUP";
+        return;
+      }
+
+      const script = document.createElement("script");
+      script.src = "https://accounts.google.com/gsi/client";
+      script.async = true;
+      script.defer = true;
+      script.onload = configureGoogleIdentity;
+      script.onerror = () => {
+        authError.textContent = "Unable to load Google sign-in right now.";
+      };
+      document.head.appendChild(script);
+    }
+
+    function configureGoogleIdentity() {
+      if (!window.google?.accounts?.id) return;
+      window.google.accounts.id.initialize({
+        client_id: googleClientId,
+        callback: handleGoogleCredential,
+        auto_select: false,
+        cancel_on_tap_outside: false
+      });
+      window.google.accounts.id.renderButton(googleSigninSlot, {
+        theme: "outline",
+        size: "large",
+        text: "signin_with",
+        shape: "pill",
+        width: 320
+      });
+    }
+
+    function handleGoogleCredential(response) {
+      try {
+        const profile = parseJwt(response.credential);
+        if (!profile?.email) {
+          throw new Error("Google account email was not returned.");
+        }
+        activeUser = {
+          name: profile.name || profile.given_name || profile.email,
+          email: profile.email,
+          picture: profile.picture || ""
+        };
+        localStorage.setItem(STORAGE_KEYS.user, activeUser.email);
+        localStorage.setItem(`${STORAGE_KEYS.profilePrefix}${activeUser.email}`, JSON.stringify(activeUser));
+        authError.textContent = "";
+        renderAccount();
+        setAuthLockedState(false);
+        authOverlay.classList.add("hidden");
+        sessionState.textContent = "READY";
+        statusText.textContent = `Signed in as ${activeUser.email}. Enter or confirm your Gemini API key to continue.`;
+        summaryText.textContent = "Each Google account keeps its own Gemini API key in this browser only.";
+      } catch (error) {
+        authError.textContent = error.message || "Google sign-in failed.";
+      }
+    }
+
+    function restoreSession() {
+      const email = localStorage.getItem(STORAGE_KEYS.user);
+      if (!email) {
+        renderAccount();
+        return;
+      }
+      try {
+        const savedProfile = JSON.parse(localStorage.getItem(`${STORAGE_KEYS.profilePrefix}${email}`) || "null");
+        if (!savedProfile?.email) {
+          throw new Error("Saved session is incomplete.");
+        }
+        activeUser = savedProfile;
+        renderAccount();
+        setAuthLockedState(false);
+        authOverlay.classList.add("hidden");
+        sessionState.textContent = "READY";
+        statusText.textContent = `Restored session for ${activeUser.email}.`;
+        summaryText.textContent = "The saved Gemini API key was loaded for this account if available.";
+      } catch (error) {
+        localStorage.removeItem(STORAGE_KEYS.user);
+        authError.textContent = "Saved session could not be restored. Please sign in again.";
+        renderAccount();
+      }
+    }
+
+    function renderAccount() {
+      if (!activeUser?.email) {
+        accountCard.classList.add("hidden");
+        accountName.textContent = "Guest";
+        accountEmail.textContent = "No account connected";
+        accountAvatar.removeAttribute("src");
+        apiKeyHint.textContent = "Sign in first. The key will be remembered per Google account in this browser only.";
+        return;
+      }
+      accountCard.classList.remove("hidden");
+      accountName.textContent = activeUser.name || activeUser.email;
+      accountEmail.textContent = activeUser.email;
+      if (activeUser.picture) {
+        accountAvatar.src = activeUser.picture;
+      } else {
+        accountAvatar.removeAttribute("src");
+      }
+      apiKeyInput.value = localStorage.getItem(`${STORAGE_KEYS.keyPrefix}${activeUser.email}`) || "";
+      apiKeyHint.textContent = `API key for ${activeUser.email} stays only in this browser and is never stored on the server.`;
+    }
+
+    function setAuthLockedState(locked) {
+      document.querySelectorAll("#analyzeBtn, #testBtn, #generateBtn").forEach(button => {
+        button.disabled = locked;
+      });
+      apiKeyInput.disabled = locked;
+    }
+
+    function ensureSignedIn() {
+      if (activeUser?.email) {
+        return true;
+      }
+      authOverlay.classList.remove("hidden");
+      sessionState.textContent = "SIGN IN";
+      statusText.textContent = "Sign in with Google before using Gemini.";
+      summaryText.textContent = "";
+      return false;
+    }
+
     async function runRequest(url, payload, successState, textOnly) {
+      if (!payload.apiKey) {
+        sessionState.textContent = "NO KEY";
+        statusText.textContent = "Enter your Gemini API key first.";
+        summaryText.textContent = "Each signed-in user needs their own Gemini key.";
+        return null;
+      }
       sessionState.textContent = "WORKING";
       statusText.textContent = "Processing request...";
       summaryText.textContent = "";
@@ -509,6 +909,13 @@
         reader.onerror = reject;
         reader.readAsDataURL(file);
       });
+    }
+
+    function parseJwt(token) {
+      const part = token.split(".")[1];
+      const normalized = part.replace(/-/g, "+").replace(/_/g, "/");
+      const padded = normalized.padEnd(normalized.length + (4 - normalized.length % 4) % 4, "=");
+      return JSON.parse(atob(padded));
     }
   </script>
 </body>

@@ -2,7 +2,7 @@
 
 A Flask web app for architectural image prompting with Gemini API.
 
-Users enter their own Gemini API key in the browser.
+Users sign in with Google, then enter their own Gemini API key in the browser.
 
 ## Features
 
@@ -12,6 +12,8 @@ Users enter their own Gemini API key in the browser.
 - Upload house reference image
 - Preview generated result
 - Save generated image locally
+- Google sign-in gate for per-user browser sessions
+- Per-account Gemini API key persistence in local browser storage
 
 ## Project Files
 
@@ -32,6 +34,7 @@ pip install -r requirements.txt
 2. Start the app:
 
 ```powershell
+set GOOGLE_CLIENT_ID=your-google-oauth-client-id.apps.googleusercontent.com
 python web_app.py
 ```
 
@@ -162,5 +165,7 @@ If you want a public site like a normal static website, use GitHub Pages.
 ## Notes
 
 - Do not hardcode Gemini API keys in code
-- Users should enter their own key in the app
+- Set `GOOGLE_CLIENT_ID` before running if you want Google sign-in enabled
+- Users should sign in with Google and enter their own Gemini API key in the app
 - Quota and billing are controlled by each user's Google AI Studio project
+- API keys are kept in the user's browser storage and are not stored on the server

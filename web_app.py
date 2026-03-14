@@ -1,5 +1,6 @@
 import base64
 import json
+import os
 import urllib.error
 import urllib.request
 from pathlib import Path
@@ -10,6 +11,7 @@ from flask import Flask, jsonify, render_template, request
 IMAGE_MODEL = "gemini-2.5-flash-image"
 TEXT_MODEL = "gemini-2.5-flash"
 BASE_DIR = Path(__file__).resolve().parent
+GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "").strip()
 
 PRESETS = {
     "festive-urban-residence": {
@@ -159,7 +161,13 @@ def build_generation_prompt(data):
 
 @app.route("/")
 def index():
-    return render_template("index.html", presets=PRESETS, image_model=IMAGE_MODEL, text_model=TEXT_MODEL)
+    return render_template(
+        "index.html",
+        presets=PRESETS,
+        image_model=IMAGE_MODEL,
+        text_model=TEXT_MODEL,
+        google_client_id=GOOGLE_CLIENT_ID,
+    )
 
 
 @app.post("/api/test-key")
