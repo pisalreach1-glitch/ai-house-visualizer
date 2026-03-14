@@ -9,61 +9,47 @@ IMAGE_MODEL = "gemini-2.5-flash-image"
 TEXT_MODEL = "gemini-2.5-flash"
 
 PRESETS = {
-    "late-afternoon-luxury": {
-        "title": "Modern Festive Facade",
-        "note": "Warm light, wood accents, premium street view",
-        "prompt": "modern luxury villa facade, late afternoon sun, balanced greenery, premium driveway, soft warm sky, elegant front elevation",
-        "image": "/static/assets/late-afternoon-luxury.jpg",
-        "position": "center 44%",
-    },
-    "modern-tropical": {
-        "title": "Minimal Courtyard Home",
-        "note": "Soft evening mood, clean landscape, calm facade",
-        "prompt": "modern tropical house exterior, warm wood details, clean landscape, soft golden light, luxury residential presentation",
-        "image": "/static/assets/modern-tropical.jpg",
-        "position": "center 38%",
-    },
-    "minimal-gray": {
-        "title": "Minimal Gray Villa",
-        "note": "Luxury glazing, balanced garden, premium elevation",
-        "prompt": "minimal gray luxury home, large windows, clean facade, calm landscape, elegant modern exterior, premium architecture",
-        "image": "/static/assets/minimal-gray.jpg",
-        "position": "center 46%",
-    },
-    "soft-morning": {
-        "title": "Soft Morning Residence",
-        "note": "Fresh landscape, bright facade, clean family home",
-        "prompt": "clean luxury home exterior, soft morning light, fresh landscape, gentle blue sky, photo-real facade, refined residential style",
-        "image": "/static/assets/soft-morning.jpg",
+    "festive-urban-residence": {
+        "title": "Festive Urban Residence",
+        "note": "Warm sunset light, luxury facade, wood screen details",
+        "prompt": "modern luxury urban residence, warm sunset lighting, vertical wood screen facade, premium landscaping, elegant driveway, cinematic architectural photography, no text, no watermark",
+        "image": "/static/assets/festive-urban-residence.jpg",
         "position": "center 42%",
     },
-    "clean-courtyard": {
-        "title": "Clean Courtyard Villa",
-        "note": "Single-floor calm facade, wide yard, elegant entrance",
-        "prompt": "single floor modern villa, spacious courtyard, balanced plants, elegant facade, realistic architectural photography, clean premium exterior",
-        "image": "/static/assets/clean-courtyard.jpg",
-        "position": "center 36%",
+    "brick-roof-loft": {
+        "title": "Brick Roof Loft",
+        "note": "Compact two-story home, red tile roof, soft evening mood",
+        "prompt": "compact two story home, red tile roof, lush balcony plants, warm interior glow, cozy residential facade, realistic street-front architectural photo, no text, no watermark",
+        "image": "/static/assets/brick-roof-loft.jpg",
+        "position": "center 40%",
     },
-    "tropical-night": {
-        "title": "Tropical Night Home",
-        "note": "Warm interior glow, lush garden, cozy evening mood",
-        "prompt": "tropical evening house exterior, warm interior lighting, lush garden, elegant cozy facade, realistic night architectural visualization",
-        "image": "/static/assets/tropical-night.jpg",
-        "position": "center 34%",
+    "garden-c4-bungalow": {
+        "title": "Garden C4 Bungalow",
+        "note": "Clean single-floor villa, open yard, elegant modern entry",
+        "prompt": "single floor modern bungalow, wide front yard, clean landscape, elegant front porch, premium residential photography, balanced greenery, no text, no watermark",
+        "image": "/static/assets/garden-c4-bungalow.jpg",
+        "position": "center 44%",
     },
-    "grand-glass-villa": {
-        "title": "Grand Glass Villa",
-        "note": "Three-story luxury home, glazing, premium frontage",
-        "prompt": "three story luxury glass villa, premium landscape, large windows, warm interior lights, elegant residential elevation, photoreal exterior",
-        "image": "/static/assets/grand-glass-villa.jpg",
-        "position": "center 39%",
+    "soft-morning-cottage": {
+        "title": "Soft Morning Cottage",
+        "note": "Fresh daylight, minimal facade, calm family-home look",
+        "prompt": "soft morning family cottage, clean gray and white facade, fresh lawn, warm window light, refined residential exterior, realistic architectural photo, no text, no watermark",
+        "image": "/static/assets/soft-morning-cottage.jpg",
+        "position": "center 46%",
     },
-    "slim-urban-house": {
-        "title": "Slim Urban House",
-        "note": "Vertical townhouse, planted balconies, clean modern lines",
-        "prompt": "slim modern urban townhouse, planted balconies, minimalist facade, elegant city residence, realistic exterior visualization",
-        "image": "/static/assets/slim-urban-house.jpg",
-        "position": "center 32%",
+    "grand-glass-residence": {
+        "title": "Grand Glass Residence",
+        "note": "Three-story luxury home, large windows, premium frontage",
+        "prompt": "three story luxury residence, large glass windows, stone and dark metal accents, warm interior lighting, premium garden frontage, photoreal architectural exterior, no text, no watermark",
+        "image": "/static/assets/grand-glass-residence.jpg",
+        "position": "center 41%",
+    },
+    "classic-palm-villa": {
+        "title": "Classic Palm Villa",
+        "note": "Elegant classic facade, palm trees, premium driveway mood",
+        "prompt": "classic luxury villa facade, symmetrical composition, palm trees, chandelier foyer, premium driveway, elegant residential architecture, realistic exterior render, no text, no watermark",
+        "image": "/static/assets/classic-palm-villa.jpg",
+        "position": "center 45%",
     },
 }
 

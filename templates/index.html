@@ -242,7 +242,7 @@
         <div class="label">Preset</div>
         <div class="presets" id="presetGrid">
           {% for key, preset in presets.items() %}
-          <div class="preset {% if loop.first %}active{% endif %}" data-preset="{{ key }}">
+          <div class="preset {% if loop.first %}active{% endif %}" data-preset="{{ key }}" data-prompt="{{ preset.prompt }}">
             <div class="preset-swatch" style="background-image:url('{{ preset.image }}'); background-position: {{ preset.position }};"></div>
             <div class="preset-name">{{ preset.title }}</div>
             <div class="preset-note">{{ preset.note }}</div>
@@ -366,7 +366,7 @@
     const weatherSelect = document.getElementById("weatherSelect");
     const renderStyleSelect = document.getElementById("renderStyleSelect");
 
-    let activePreset = document.querySelector(".preset.active")?.dataset.preset || "late-afternoon-luxury";
+    let activePreset = document.querySelector(".preset.active")?.dataset.preset || "festive-urban-residence";
     let sourceImageDataUrl = "";
     let generatedImageDataUrl = "";
 
@@ -375,8 +375,13 @@
         presets.forEach(item => item.classList.remove("active"));
         card.classList.add("active");
         activePreset = card.dataset.preset;
+        promptInput.value = card.dataset.prompt || "";
       });
     });
+
+    if (document.querySelector(".preset.active")?.dataset.prompt) {
+      promptInput.value = document.querySelector(".preset.active").dataset.prompt;
+    }
 
     imageInput.addEventListener("change", async (event) => {
       const file = event.target.files[0];
