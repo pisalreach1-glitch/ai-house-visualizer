@@ -127,11 +127,25 @@
       background: #16191f;
     }
     .preset-swatch {
-      height: 72px;
+      height: 118px;
       border-radius: 12px;
       margin-bottom: 8px;
-      background: linear-gradient(135deg, #4b5563, #1f2937);
+      background-size: cover;
+      background-position: center center;
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.05);
     }
+    .preset-swatch::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(10,13,18,.38), rgba(10,13,18,.02) 36%, rgba(10,13,18,.42)),
+        linear-gradient(0deg, rgba(10,13,18,.45), rgba(10,13,18,0) 28%);
+    }
+    .preset-name { font-size: 13px; font-weight: 700; line-height: 1.35; }
+    .preset-note { color: var(--muted); font-size: 11px; line-height: 1.45; margin-top: 4px; }
     .muted { color: var(--muted); font-size: 11px; }
     .preview-card {
       padding: 18px;
@@ -229,9 +243,9 @@
         <div class="presets" id="presetGrid">
           {% for key, preset in presets.items() %}
           <div class="preset {% if loop.first %}active{% endif %}" data-preset="{{ key }}">
-            <div class="preset-swatch"></div>
-            <strong>{{ preset.title }}</strong>
-            <div class="muted">{{ preset.prompt }}</div>
+            <div class="preset-swatch" style="background-image:url('{{ preset.image }}'); background-position: {{ preset.position }};"></div>
+            <div class="preset-name">{{ preset.title }}</div>
+            <div class="preset-note">{{ preset.note }}</div>
           </div>
           {% endfor %}
         </div>

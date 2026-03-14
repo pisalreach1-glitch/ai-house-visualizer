@@ -10,20 +10,60 @@ TEXT_MODEL = "gemini-2.5-flash"
 
 PRESETS = {
     "late-afternoon-luxury": {
-        "title": "Late Afternoon Luxury",
+        "title": "Modern Festive Facade",
+        "note": "Warm light, wood accents, premium street view",
         "prompt": "modern luxury villa facade, late afternoon sun, balanced greenery, premium driveway, soft warm sky, elegant front elevation",
+        "image": "/static/assets/late-afternoon-luxury.jpg",
+        "position": "center 44%",
     },
     "modern-tropical": {
-        "title": "Modern Tropical",
+        "title": "Minimal Courtyard Home",
+        "note": "Soft evening mood, clean landscape, calm facade",
         "prompt": "modern tropical house exterior, warm wood details, clean landscape, soft golden light, luxury residential presentation",
+        "image": "/static/assets/modern-tropical.jpg",
+        "position": "center 38%",
     },
     "minimal-gray": {
-        "title": "Minimal Gray",
+        "title": "Minimal Gray Villa",
+        "note": "Luxury glazing, balanced garden, premium elevation",
         "prompt": "minimal gray luxury home, large windows, clean facade, calm landscape, elegant modern exterior, premium architecture",
+        "image": "/static/assets/minimal-gray.jpg",
+        "position": "center 46%",
     },
     "soft-morning": {
-        "title": "Soft Morning",
+        "title": "Soft Morning Residence",
+        "note": "Fresh landscape, bright facade, clean family home",
         "prompt": "clean luxury home exterior, soft morning light, fresh landscape, gentle blue sky, photo-real facade, refined residential style",
+        "image": "/static/assets/soft-morning.jpg",
+        "position": "center 42%",
+    },
+    "clean-courtyard": {
+        "title": "Clean Courtyard Villa",
+        "note": "Single-floor calm facade, wide yard, elegant entrance",
+        "prompt": "single floor modern villa, spacious courtyard, balanced plants, elegant facade, realistic architectural photography, clean premium exterior",
+        "image": "/static/assets/clean-courtyard.jpg",
+        "position": "center 36%",
+    },
+    "tropical-night": {
+        "title": "Tropical Night Home",
+        "note": "Warm interior glow, lush garden, cozy evening mood",
+        "prompt": "tropical evening house exterior, warm interior lighting, lush garden, elegant cozy facade, realistic night architectural visualization",
+        "image": "/static/assets/tropical-night.jpg",
+        "position": "center 34%",
+    },
+    "grand-glass-villa": {
+        "title": "Grand Glass Villa",
+        "note": "Three-story luxury home, glazing, premium frontage",
+        "prompt": "three story luxury glass villa, premium landscape, large windows, warm interior lights, elegant residential elevation, photoreal exterior",
+        "image": "/static/assets/grand-glass-villa.jpg",
+        "position": "center 39%",
+    },
+    "slim-urban-house": {
+        "title": "Slim Urban House",
+        "note": "Vertical townhouse, planted balconies, clean modern lines",
+        "prompt": "slim modern urban townhouse, planted balconies, minimalist facade, elegant city residence, realistic exterior visualization",
+        "image": "/static/assets/slim-urban-house.jpg",
+        "position": "center 32%",
     },
 }
 
