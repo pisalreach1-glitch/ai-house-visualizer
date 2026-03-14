@@ -728,9 +728,23 @@ class VisualizeWindow(QMainWindow):
         self.status_label.setStyleSheet("color:#d4dbe5; font-size:14px;")
         bottom_layout.addWidget(self.status_label)
 
-        self.summary_label = QLabel()
-        self.summary_label.setWordWrap(True)
-        self.summary_label.setStyleSheet("color:#8791a1; font-size:12px;")
+        self.summary_label = QTextEdit()
+        self.summary_label.setReadOnly(True)
+        self.summary_label.setMinimumHeight(72)
+        self.summary_label.setMaximumHeight(170)
+        self.summary_label.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.summary_label.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.summary_label.setStyleSheet(
+            """
+            QTextEdit {
+                background-color: transparent;
+                border: none;
+                color: #8791a1;
+                font-size: 12px;
+                padding: 0px;
+            }
+            """
+        )
         summary_row = QHBoxLayout()
         summary_row.setSpacing(8)
         summary_row.addWidget(self.summary_label, 1)
