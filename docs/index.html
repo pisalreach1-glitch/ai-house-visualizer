@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI House Visualizer Public</title>
+  <title>AI House Visualizer</title>
   <style>
     :root {
       --bg: #0b0d12;
@@ -21,8 +21,9 @@
     .header, .panel, .preview-card { background: var(--panel); border: 1px solid var(--border); border-radius: 24px; }
     .header { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:18px 22px; margin-bottom:16px; }
     .title-wrap { display:flex; align-items:center; gap:14px; }
-    .logo { width:44px; height:44px; border-radius:14px; display:grid; place-items:center; font-weight:700; font-size:22px; background:linear-gradient(135deg,#e36579,#5b76ff); }
+    .logo { min-width:78px; height:46px; padding:0 16px; border-radius:14px; display:grid; place-items:center; font-weight:700; font-size:20px; background:linear-gradient(135deg,#d96a72,#6f2a31 58%,#111111); }
     .status-pill { padding:10px 14px; border-radius:12px; border:1px solid #2f8e85; background:rgba(66,214,199,.12); color:#9ff3ea; font-size:12px; font-weight:700; }
+    .header-actions { display:flex; align-items:center; gap:10px; }
     .layout { display:grid; grid-template-columns:340px 1fr 340px; gap:18px; }
     .panel, .preview-card { padding:20px; }
     h1,h2,h3,p { margin:0; }
@@ -64,6 +65,10 @@
     .preview-area img { max-width:100%; max-height:100%; display:none; }
     .preview-placeholder { text-align:center; color:var(--muted); padding:24px; }
     .summary-box { border:1px solid #1f2631; background:#10141b; border-radius:18px; padding:16px; line-height:1.5; }
+    .summary-row { display:flex; gap:8px; align-items:flex-start; }
+    .summary-row .muted { flex:1; margin-top:8px; white-space:pre-wrap; }
+    .icon-btn { width:34px; min-width:34px; border:none; border-radius:10px; background:#1a1f27; color:#edf2f8; font-size:16px; padding:0; }
+    .icon-btn:hover { background:#202733; }
     .history { display:flex; gap:10px; overflow-x:auto; padding-bottom:4px; }
     .history-item { min-width:150px; border:1px solid #2c3340; border-radius:16px; background:#151a22; padding:8px; cursor:pointer; }
     .history-item img { width:100%; height:78px; object-fit:cover; border-radius:10px; display:block; margin-bottom:8px; }
@@ -75,30 +80,39 @@
   <div class="app">
     <div class="header">
       <div class="title-wrap">
-        <div class="logo">S</div>
+        <div class="logo">សាល</div>
         <div>
-          <h1>AI House Visualizer Public</h1>
-          <p class="muted">Static GitHub Pages version with user-owned Gemini API keys</p>
+          <h1>AI House Visualizer</h1>
+          <p class="muted">New session ready for house facade visualization</p>
         </div>
       </div>
-      <div class="status-pill" id="sessionState">READY</div>
+      <div class="header-actions">
+        <div class="status-pill" id="sessionState">READY</div>
+        <button id="newSessionBtn" style="width:auto;padding:0 18px;">New Session</button>
+      </div>
     </div>
 
     <div class="layout">
       <div class="panel">
         <div class="section-title">
           <h2>Project Controls</h2>
-          <p>Upload image, choose preset, then analyze or generate.</p>
+          <p>Choose image and style</p>
         </div>
 
         <div class="label">Image</div>
         <input type="file" id="imageInput" accept="image/*">
 
-        <div class="label">Preset</div>
+        <div class="label">Visual Preset</div>
         <div class="presets" id="presetGrid"></div>
 
-        <div class="label">Instructions</div>
+        <div class="label">Special Instructions</div>
         <textarea id="promptInput" placeholder="Describe facade style, materials, mood, landscaping or render goals..."></textarea>
+
+        <div class="label">Add Object</div>
+        <input type="file" id="objectInput" accept="image/*">
+
+        <div class="label">Site Context</div>
+        <textarea id="siteContextInput" placeholder="Describe the road, neighborhood, front yard, trees, sidewalk, driveway, surrounding buildings..."></textarea>
 
         <div class="button-row" style="margin-top:12px;">
           <button id="analyzeBtn">Analyze Style</button>
@@ -113,7 +127,7 @@
       <div class="preview-card">
         <div>
           <h2 style="margin-bottom:4px;">Preview Workspace</h2>
-          <p class="muted">Text/analyze can use free tier. Image generation may need image-model access or billing.</p>
+          <p class="muted">Load a house photo, choose a preset, then render a cleaner and more polished facade mood.</p>
         </div>
         <div class="preview-area">
           <div class="preview-placeholder" id="previewPlaceholder">
@@ -126,10 +140,14 @@
           <button id="showOriginalBtn">Show Original</button>
           <button id="showGeneratedBtn">Show Generated</button>
           <button id="saveBtn">Save Result</button>
+          <button id="saveOriginalBtn">Save Original</button>
         </div>
         <div class="summary-box">
           <div id="statusText">New session started. Text analyze can use free tier; image generate depends on image-model access.</div>
-          <div id="summaryText" class="muted" style="margin-top:8px;">Analyze uses gemini-2.5-flash. Image generation uses gemini-2.5-flash-image.</div>
+          <div class="summary-row">
+            <div id="summaryText" class="muted">Analyze Style uses gemini-2.5-flash (text/free-tier friendly). Render Visual uses gemini-2.5-flash-image (image access/billing may be required).</div>
+            <button id="copyPromptBtn" class="icon-btn" title="Copy Prompt">📋</button>
+          </div>
         </div>
         <div>
           <h3 style="margin-bottom:10px;">Result History</h3>
@@ -230,8 +248,10 @@
     const statusText = document.getElementById("statusText");
     const summaryText = document.getElementById("summaryText");
     const imageInput = document.getElementById("imageInput");
+    const objectInput = document.getElementById("objectInput");
     const apiKeyInput = document.getElementById("apiKeyInput");
     const promptInput = document.getElementById("promptInput");
+    const siteContextInput = document.getElementById("siteContextInput");
     const cameraSelect = document.getElementById("cameraSelect");
     const timeSelect = document.getElementById("timeSelect");
     const weatherSelect = document.getElementById("weatherSelect");
@@ -239,7 +259,10 @@
 
     let activePreset = "brick-roof-loft";
     let sourceImageDataUrl = "";
+    let objectImageDataUrl = "";
     let generatedImageDataUrl = "";
+    let latestRefinedPrompt = "";
+    let latestNegativePrompt = "text, watermark, logo, signage, blurry facade, distorted proportions";
 
     Object.entries(PRESETS).forEach(([key, preset], index) => {
       const card = document.createElement("div");
@@ -254,12 +277,15 @@
         document.querySelectorAll(".preset").forEach(item => item.classList.remove("active"));
         card.classList.add("active");
         activePreset = key;
+        latestRefinedPrompt = "";
         promptInput.value = preset.prompt;
+        updateSummary();
       });
       presetGrid.appendChild(card);
     });
 
     promptInput.value = PRESETS[activePreset].prompt;
+    updateSummary();
 
     imageInput.addEventListener("change", async (event) => {
       const file = event.target.files[0];
@@ -268,7 +294,32 @@
       showImage(sourceImageDataUrl);
       sessionState.textContent = "IMAGE LOADED";
       statusText.textContent = "Image loaded successfully. You can analyze or generate now.";
-      summaryText.textContent = `Source: ${file.name}`;
+      updateSummary();
+    });
+
+    objectInput.addEventListener("change", async (event) => {
+      const file = event.target.files[0];
+      if (!file) {
+        objectImageDataUrl = "";
+        updateSummary();
+        return;
+      }
+      objectImageDataUrl = await fileToDataUrl(file);
+      statusText.textContent = "Object reference loaded. It will be blended into the next render.";
+      updateSummary();
+    });
+
+    siteContextInput.addEventListener("input", updateSummary);
+
+    document.getElementById("newSessionBtn").addEventListener("click", resetWorkspace);
+    document.getElementById("copyPromptBtn").addEventListener("click", () => {
+      const text = (latestRefinedPrompt || promptInput.value || "").trim();
+      if (!text) return setError("There is no prompt to copy yet.");
+      navigator.clipboard.writeText(text).then(() => {
+        statusText.textContent = "Prompt copied to clipboard.";
+      }).catch(() => {
+        setError("Could not copy the prompt.");
+      });
     });
 
     document.getElementById("testBtn").addEventListener("click", async () => {
@@ -326,7 +377,9 @@
         } catch (error) {}
         if (refinedPrompt) {
           promptInput.value = refinedPrompt;
+          latestRefinedPrompt = refinedPrompt;
         }
+        latestNegativePrompt = negativePrompt || latestNegativePrompt;
         sessionState.textContent = "TEXT OK";
         statusText.textContent = "Text analysis complete using gemini-2.5-flash.";
         summaryText.textContent = [styleSummary, `Negative prompt: ${negativePrompt}`].filter(Boolean).join("\n");
@@ -375,17 +428,37 @@
       link.click();
     });
 
+    document.getElementById("saveOriginalBtn").addEventListener("click", () => {
+      if (!sourceImageDataUrl) return setError("No original image available to save.");
+      const link = document.createElement("a");
+      link.href = sourceImageDataUrl;
+      link.download = "source_image.png";
+      link.click();
+    });
+
     function buildPrompt() {
       const preset = PRESETS[activePreset];
-      const extra = promptInput.value.trim();
-      const basePrompt = extra || preset.prompt;
+      const basePrompt = promptInput.value.trim() || preset.prompt;
       const parts = [
         basePrompt,
         `Camera: ${cameraSelect.value}.`,
         `Time of day: ${timeSelect.value}.`,
         `Weather: ${weatherSelect.value}.`,
-        `Style target: ${renderStyleSelect.value}, realistic architectural visualization, high-end residential facade, photoreal result.`
+        `Style target: ${renderStyleSelect.value}, realistic architectural visualization, high-end residential facade, photoreal result.`,
+        "Match the preset reference image mood with believable landscaping, front yard composition, trees, plants, sidewalk, driveway, and neighborhood atmosphere around the house."
       ];
+      if (summaryText.textContent && sessionState.textContent === "TEXT OK") {
+        parts.push(`Preset analysis summary: ${summaryText.textContent.split("\n")[0]}.`);
+      }
+      if (siteContextInput.value.trim()) {
+        parts.push(`Site context: ${siteContextInput.value.trim()}.`);
+      }
+      if (objectImageDataUrl) {
+        parts.push("Blend the uploaded object reference naturally into the scene with correct scale, lighting, and realistic placement.");
+      }
+      if (latestNegativePrompt) {
+        parts.push(`Avoid: ${latestNegativePrompt}.`);
+      }
       return parts.filter(Boolean).join(" ");
     }
 
@@ -398,9 +471,21 @@
     }
 
     async function callImageModel(apiKey) {
+      const preset = PRESETS[activePreset];
       const parts = [{ text: buildPrompt() }];
+      const presetDataUrl = await imageUrlToDataUrl(preset.image);
+      if (presetDataUrl) {
+        const [header, encoded] = presetDataUrl.split(",", 2);
+        const mimeType = header.replace("data:", "").split(";")[0] || "image/jpeg";
+        parts.push({ inlineData: { mimeType, data: encoded } });
+      }
       if (sourceImageDataUrl) {
         const [header, encoded] = sourceImageDataUrl.split(",", 2);
+        const mimeType = header.replace("data:", "").split(";")[0] || "image/jpeg";
+        parts.push({ inlineData: { mimeType, data: encoded } });
+      }
+      if (objectImageDataUrl) {
+        const [header, encoded] = objectImageDataUrl.split(",", 2);
         const mimeType = header.replace("data:", "").split(";")[0] || "image/jpeg";
         parts.push({ inlineData: { mimeType, data: encoded } });
       }
@@ -494,6 +579,37 @@
       previewImage.src = dataUrl;
       previewImage.style.display = "block";
       previewPlaceholder.style.display = "none";
+    }
+
+    function updateSummary() {
+      const sourceName = imageInput.files[0]?.name || "No source image";
+      const objectName = objectInput.files[0]?.name || "No object";
+      const context = (siteContextInput.value || "").trim();
+      const contextPreview = context ? (context.length > 40 ? `${context.slice(0, 40)}...` : context) : "No site context";
+      summaryText.textContent =
+        `Source: ${sourceName} | Preset: ${PRESETS[activePreset].title} | ` +
+        `Time: ${timeSelect.value} | Weather: ${weatherSelect.value} | ` +
+        `Object: ${objectName} | Context: ${contextPreview}`;
+    }
+
+    function resetWorkspace() {
+      sourceImageDataUrl = "";
+      objectImageDataUrl = "";
+      generatedImageDataUrl = "";
+      latestRefinedPrompt = "";
+      latestNegativePrompt = "text, watermark, logo, signage, blurry facade, distorted proportions";
+      imageInput.value = "";
+      objectInput.value = "";
+      siteContextInput.value = "";
+      promptInput.value = PRESETS[activePreset].prompt;
+      previewImage.removeAttribute("src");
+      previewImage.style.display = "none";
+      previewPlaceholder.style.display = "block";
+      historyList.innerHTML = "";
+      sessionState.textContent = "READY";
+      statusText.textContent = "New session started. Text analyze can use free tier; image generate depends on image-model access.";
+      summaryText.textContent = "Analyze Style uses gemini-2.5-flash (text/free-tier friendly). Render Visual uses gemini-2.5-flash-image (image access/billing may be required).";
+      updateSummary();
     }
 
     function addHistoryItem(dataUrl, label) {
