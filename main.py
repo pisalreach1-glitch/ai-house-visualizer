@@ -7,6 +7,7 @@ import sys
 import traceback
 import urllib.error
 import urllib.request
+from pathlib import Path
 
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QIcon, QColor, QFont, QImage, QPainter, QPixmap
@@ -17,6 +18,7 @@ from PyQt5.QtWidgets import (
     QGraphicsDropShadowEffect,
     QGridLayout,
     QHBoxLayout,
+    QInputDialog,
     QLabel,
     QLineEdit,
     QMainWindow,
@@ -26,6 +28,9 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+
+
+BASE_DIR = Path(__file__).resolve().parent
 
 
 def add_shadow(widget, blur=28, color=QColor(0, 0, 0, 95), y_offset=10):
@@ -38,6 +43,22 @@ def add_shadow(widget, blur=28, color=QColor(0, 0, 0, 95), y_offset=10):
 
 def clamp(value, low=0, high=255):
     return max(low, min(high, int(value)))
+
+
+def clean_reference_pixmap(pixmap):
+    if pixmap.isNull():
+        return pixmap
+    width = pixmap.width()
+    height = pixmap.height()
+    top_crop = 0.12 if height >= width else 0.08
+    bottom_crop = 0.2 if height >= width else 0.16
+    side_crop = 0.04
+    x = int(width * side_crop)
+    y = int(height * top_crop)
+    cropped_width = max(1, width - int(width * side_crop * 2))
+    cropped_height = max(1, height - y - int(height * bottom_crop))
+    cropped = pixmap.copy(x, y, cropped_width, cropped_height)
+    return cropped if not cropped.isNull() else pixmap
 
 
 class ChoiceButton(QPushButton):
@@ -64,7 +85,7 @@ class ChoiceButton(QPushButton):
                 border-radius: 12px;
                 padding: 10px 14px;
                 text-align: center;
-                font-size: 12px;
+                font-size: 13px;
                 font-weight: 600;
             }}
             QPushButton:hover {{
@@ -107,42 +128,71 @@ class ToggleSwitch(QPushButton):
 
 
 class PresetCard(QFrame):
-    def __init__(self, key, title, subtitle, accent, source):
+    def __init__(self, key, title, subtitle, accent, source, image_path=""):
         super().__init__()
+        self.setObjectName("presetCard")
         self.key = key
         self.title = title
         self.subtitle = subtitle
         self.accent = accent
         self.source = source
+        self.image_path = image_path
         self.on_click = None
         self.active = False
         self.setCursor(Qt.PointingHandCursor)
-        self.setMinimumSize(142, 164)
+        self.setMinimumSize(154, 182)
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(12, 12, 12, 12)
         layout.setSpacing(8)
 
         cover = QLabel()
-        cover.setFixedHeight(84)
-        cover.setStyleSheet(
-            f"background:qlineargradient(x1:0,y1:0,x2:1,y2:1, stop:0 {accent}, stop:1 #2b2e37); border-radius: 12px;"
-        )
+        self.cover = cover
+        cover.setFixedHeight(96)
+        cover.setAlignment(Qt.AlignCenter)
+        cover.setScaledContents(False)
+
         title_label = QLabel(title)
         title_label.setWordWrap(True)
-        title_label.setStyleSheet("color:#f6f8fb; font-size:12px; font-weight:700;")
+        title_label.setStyleSheet("color:#f6f8fb; font-size:14px; font-weight:700;")
         subtitle_label = QLabel(subtitle)
         subtitle_label.setWordWrap(True)
-        subtitle_label.setStyleSheet("color:#98a0ae; font-size:10px;")
+        subtitle_label.setStyleSheet("color:#98a0ae; font-size:11px;")
         source_label = QLabel(source)
         source_label.setWordWrap(True)
-        source_label.setStyleSheet("color:#72dfd4; font-size:9px;")
+        source_label.setStyleSheet("color:#72dfd4; font-size:10px;")
 
         layout.addWidget(cover)
         layout.addWidget(title_label)
         layout.addWidget(subtitle_label)
         layout.addWidget(source_label)
+        self.load_cover_image()
         self.refresh_style()
+
+    def load_cover_image(self):
+        pixmap = QPixmap(self.image_path) if self.image_path else QPixmap()
+        if pixmap.isNull():
+            self.cover.setPixmap(QPixmap())
+            self.cover.setStyleSheet(
+                f"background:qlineargradient(x1:0,y1:0,x2:1,y2:1, stop:0 {self.accent}, stop:1 #2b2e37); border-radius: 12px;"
+            )
+            return
+        cleaned = clean_reference_pixmap(pixmap)
+        scaled = cleaned.scaled(
+            240,
+            120,
+            Qt.KeepAspectRatioByExpanding,
+            Qt.SmoothTransformation,
+        )
+        self.cover.setPixmap(scaled)
+        self.cover.setStyleSheet(
+            """
+            border-radius: 12px;
+            background-color: #1a1f27;
+            padding: 0px;
+            margin: 0px;
+            """
+        )
 
     def set_active(self, active):
         self.active = active
@@ -153,7 +203,7 @@ class PresetCard(QFrame):
         background = "#16191f" if self.active else "#13161c"
         self.setStyleSheet(
             f"""
-            QFrame {{
+            QFrame#presetCard {{
                 background-color: {background};
                 border: 1px solid {border};
                 border-radius: 18px;
@@ -180,11 +230,11 @@ class ToolRow(QFrame):
         text_layout = QVBoxLayout()
         text_layout.setSpacing(1)
         title_label = QLabel(title)
-        title_label.setStyleSheet("color:#f2f5f8; font-size:11px; font-weight:700;")
+        title_label.setStyleSheet("color:#f2f5f8; font-size:12px; font-weight:700;")
         text_layout.addWidget(title_label)
         if subtitle:
             subtitle_label = QLabel(subtitle)
-            subtitle_label.setStyleSheet("color:#79808e; font-size:9px;")
+            subtitle_label.setStyleSheet("color:#79808e; font-size:10px;")
             text_layout.addWidget(subtitle_label)
 
         layout.addLayout(text_layout)
@@ -195,6 +245,7 @@ class ToolRow(QFrame):
 class ImageCanvas(QFrame):
     def __init__(self):
         super().__init__()
+        self.setObjectName("imageCanvas")
         self.pixmap = QPixmap()
         self.file_dropped_callback = None
         self.setAcceptDrops(True)
@@ -221,7 +272,7 @@ class ImageCanvas(QFrame):
 
         self.setStyleSheet(
             """
-            QFrame {
+            QFrame#imageCanvas {
                 background-color: #111419;
                 border: 1px solid #232833;
                 border-radius: 30px;
@@ -289,7 +340,7 @@ class HistoryThumb(QPushButton):
                 border: 1px solid #2c3340;
                 border-radius: 16px;
                 color: #eef2f7;
-                font-size: 10px;
+                font-size: 11px;
                 font-weight: 700;
                 text-align: left;
                 padding: 70px 10px 10px 10px;
@@ -306,64 +357,106 @@ class VisualizeWindow(QMainWindow):
         super().__init__()
         self.source_pixmap = QPixmap()
         self.generated_pixmap = QPixmap()
+        self.object_reference_pixmap = QPixmap()
         self.current_file_path = ""
+        self.object_file_path = ""
+        self.site_context_text = ""
+        self.active_preset_key = "brick-roof-loft"
+        self.latest_style_summary = ""
+        self.latest_refined_prompt = ""
+        self.latest_negative_prompt = "text, watermark, logo, signage, blurry facade, distorted proportions"
         self.preset_cards = []
         self.option_groups = {}
         self.tool_rows = []
-        self.active_preset_key = "late-afternoon-luxury"
         self.seed_value = None
         self.api_model_name = "gemini-2.5-flash-image"
         self.text_test_model_name = "gemini-2.5-flash"
         self.result_history = []
 
         self.preset_catalog = {
-            "late-afternoon-luxury": {
-                "title": "Late Afternoon Luxury",
-                "subtitle": "Warm villa facade and premium curb appeal",
-                "accent": "#d7ae68",
-                "source": "Inspired by modern villa references",
-                "prompt": "modern luxury villa facade, late afternoon sun, balanced greenery, premium driveway, soft warm sky, elegant front elevation",
-                "warmth": 18,
-                "contrast": 1.08,
-                "brightness": 8,
-                "green_reduce": 0.72,
-                "blue_boost": 5,
+            "brick-roof-loft": {
+                "title": "Slim Vertical House",
+                "subtitle": "Tall narrow townhouse with greenery and street motion",
+                "accent": "#b9c5db",
+                "source": "Sample reference 01",
+                "image": str(BASE_DIR / "Refer" / "New folder" / "photo_2026-03-14_15-08-36.jpg"),
+                "prompt": "slim vertical townhouse, tall narrow facade, minimalist white walls, dark flat roof canopy, hanging greenery on balconies, warm interior lighting, realistic street-front architecture, light traffic motion blur with motorbikes, soft overcast dusk sky, lush roadside vegetation, no text, no watermark, no logo",
+                "analysis_hint": "Focus on the tall narrow proportions, minimalist white facade, deep roof canopy, hanging balcony plants, warm interior windows, street-level realism with passing motorbikes, and a calm overcast residential atmosphere.",
+                "warmth": 11,
+                "contrast": 1.1,
+                "brightness": 6,
+                "green_reduce": 0.82,
+                "blue_boost": 8,
             },
-            "modern-tropical": {
-                "title": "Modern Tropical",
-                "subtitle": "Wood details with lush but clean landscaping",
-                "accent": "#5fc59e",
-                "source": "Inspired by tropical modern house references",
-                "prompt": "modern tropical house exterior, warm wood details, clean landscape, soft golden light, luxury residential presentation",
+            "garden-c4-bungalow": {
+                "title": "Garden C4 Courtyard",
+                "subtitle": "Compact two-story home with planted balcony and calm courtyard",
+                "accent": "#d58c72",
+                "source": "Sample reference 02",
+                "image": str(BASE_DIR / "Refer" / "New folder" / "photo_2026-03-14_15-08-34 (3).jpg"),
+                "prompt": "compact two story courtyard home, red clay tile roof, planted balcony, warm interior lighting, cozy front garden, open metal gate, realistic residential street-front architecture, soft dusk sky, clean sidewalk, calm neighborhood context, no text, no watermark, no logo",
+                "analysis_hint": "Focus on the compact two-story proportions, red tile roof, planted balcony edge, warm evening window light, quiet front courtyard, open gate, and realistic family-house street-front composition with a calm dusk atmosphere.",
                 "warmth": 15,
                 "contrast": 1.06,
                 "brightness": 10,
                 "green_reduce": 0.78,
                 "blue_boost": 4,
             },
-            "minimal-gray": {
-                "title": "Minimal Gray",
-                "subtitle": "Concrete, glass, symmetry and cool elegance",
-                "accent": "#95a4bb",
-                "source": "Inspired by minimal modern mansion references",
-                "prompt": "minimal gray luxury home, large windows, clean facade, calm landscape, elegant modern exterior, premium architecture",
+            "garden-c4-streetfront": {
+                "title": "Streetfront Garden C4",
+                "subtitle": "Open-gate bungalow with roadside trees and front landscape",
+                "accent": "#7fb6c8",
+                "source": "Sample reference 03",
+                "image": str(BASE_DIR / "Refer" / "New folder" / "photo_2026-03-14_15-08-34 (5).jpg"),
+                "prompt": "modern bungalow street-front view, open metal gate, broad front courtyard, roadside trees, visible road and sidewalk, realistic neighborhood environment, daylight architectural photography, subtle motion blur from passing traffic, no text, no watermark, no logo",
+                "analysis_hint": "Focus on the open gate, broad front courtyard, mature roadside trees, visible road and sidewalk, passing street activity, and calm suburban landscaping context in bright natural daylight.",
                 "warmth": 8,
-                "contrast": 1.12,
-                "brightness": 4,
-                "green_reduce": 0.68,
-                "blue_boost": 8,
+                "contrast": 1.04,
+                "brightness": 12,
+                "green_reduce": 0.8,
+                "blue_boost": 10,
             },
-            "soft-morning": {
-                "title": "Soft Morning",
-                "subtitle": "Fresh lawn, calm sky and lighter facade tone",
-                "accent": "#82bfd8",
-                "source": "Inspired by calm suburban villa references",
-                "prompt": "clean luxury home exterior, soft morning light, fresh landscape, gentle blue sky, photo-real facade, refined residential style",
-                "warmth": 7,
-                "contrast": 1.03,
-                "brightness": 13,
-                "green_reduce": 0.82,
-                "blue_boost": 14,
+            "night-garden-cottage": {
+                "title": "Night Garden Cottage",
+                "subtitle": "Small warm home with lush tropical landscaping at night",
+                "accent": "#d08b62",
+                "source": "Sample reference 04",
+                "image": str(BASE_DIR / "Refer" / "New folder" / "photo_2026-03-14_15-08-34 (6).jpg"),
+                "prompt": "small tropical cottage at night, warm garden lighting, tiled roof, lush tropical landscaping, flowering foreground plants, cozy realistic house facade, soft blue evening sky, cinematic residential environment, no text, no watermark, no logo",
+                "analysis_hint": "Focus on the intimate small-house proportions, warm night lighting, tiled roof, dense tropical foreground plants, flowering garden edges, soft blue sky, and cozy landscaped evening mood.",
+                "warmth": 20,
+                "contrast": 1.07,
+                "brightness": 3,
+                "green_reduce": 0.8,
+                "blue_boost": 5,
+            },
+            "classic-palm-villa": {
+                "title": "Classic Palm Villa",
+                "subtitle": "Elegant villa with palms, layered shrubs, and bright driveway mood",
+                "accent": "#d9c38e",
+                "source": "Sample reference 05",
+                "image": str(BASE_DIR / "Refer" / "New folder" / "photo_2026-03-14_15-08-34 (7).jpg"),
+                "prompt": "classic luxury villa facade at twilight, symmetrical composition, palm trees, layered shrubs, chandelier foyer, premium curved driveway, warm luxury lighting, elegant residential landscape, realistic night exterior, no text, no watermark, no logo",
+                "analysis_hint": "Focus on the classical villa language, symmetrical massing, bright warm lighting, palm-lined driveway, layered tropical shrubs, chandelier entry, and premium luxury residential night atmosphere.",
+                "warmth": 20,
+                "contrast": 1.09,
+                "brightness": 5,
+                "green_reduce": 0.75,
+                "blue_boost": 7,
+            },
+            "slim-urban-house": {
+                "title": "Grand Glass Residence",
+                "subtitle": "Modern three-story villa with glass facade and elegant front garden",
+                "accent": "#d2d7e4",
+                "source": "Sample reference 06",
+                "image": str(BASE_DIR / "Refer" / "photo_2026-03-14_11-53-13 (6).jpg"),
+                "prompt": "modern three-story luxury residence, expansive glass facade, dark metal and stone accents, symmetrical front elevation, warm interior lighting, elegant front garden, clean premium driveway, refined suburban neighborhood, realistic dusk architectural photography, lush but controlled landscaping, no text, no watermark, no logo",
+                "analysis_hint": "Focus on the premium three-story massing, large glass windows, dark modern trim, vertical center screen detail, balanced landscaping, clean driveway composition, and realistic luxury residential dusk atmosphere.",
+                "warmth": 14,
+                "contrast": 1.12,
+                "brightness": 6,
+                "green_reduce": 0.8,
+                "blue_boost": 8,
             },
         }
 
@@ -377,6 +470,10 @@ class VisualizeWindow(QMainWindow):
                 color: #eef2f7;
                 font-family: 'Segoe UI';
             }
+            QLabel {
+                background: transparent;
+                border: none;
+            }
             QFrame[class="panel"] {
                 background-color: #12161d;
                 border: 1px solid #222833;
@@ -384,11 +481,11 @@ class VisualizeWindow(QMainWindow):
             }
             QLineEdit, QTextEdit {
                 background-color: #171b22;
-                border: 1px solid #2c3340;
+                border: 1px solid #242b36;
                 border-radius: 14px;
                 color: #eef2f7;
                 padding: 12px 14px;
-                font-size: 12px;
+                font-size: 13px;
             }
             QTextEdit {
                 padding-top: 12px;
@@ -423,10 +520,11 @@ class VisualizeWindow(QMainWindow):
 
     def build_header(self):
         frame = QFrame()
+        frame.setObjectName("headerFrame")
         frame.setFixedHeight(84)
         frame.setStyleSheet(
             """
-            QFrame {
+            QFrame#headerFrame {
                 background-color: #0f1319;
                 border: 1px solid #1d232d;
                 border-radius: 24px;
@@ -436,16 +534,17 @@ class VisualizeWindow(QMainWindow):
         layout = QHBoxLayout(frame)
         layout.setContentsMargins(22, 16, 22, 16)
 
-        badge = QLabel("S")
+        badge = QLabel("សាល")
         badge.setAlignment(Qt.AlignCenter)
-        badge.setFixedSize(44, 44)
+        badge.setFixedSize(78, 46)
         badge.setStyleSheet(
             """
-            background:qlineargradient(x1:0,y1:0,x2:1,y2:1, stop:0 #e36579, stop:1 #5b76ff);
+            background:qlineargradient(x1:0,y1:0,x2:1,y2:1, stop:0 #d96a72, stop:0.58 #6f2a31, stop:1 #111111);
             border-radius: 14px;
             color: white;
-            font-size: 22px;
+            font-size: 19px;
             font-weight: 700;
+            padding-bottom: 1px;
             """
         )
 
@@ -454,7 +553,7 @@ class VisualizeWindow(QMainWindow):
         title = QLabel("AI House Visualizer")
         title.setStyleSheet("font-size:18px; font-weight:700; color:#f6f8fb;")
         subtitle = QLabel("New session ready for house facade visualization")
-        subtitle.setStyleSheet("font-size:11px; color:#8b93a2;")
+        subtitle.setStyleSheet("font-size:12px; color:#8b93a2;")
         title_box.addWidget(title)
         title_box.addWidget(subtitle)
 
@@ -464,11 +563,11 @@ class VisualizeWindow(QMainWindow):
         self.session_state_label.setStyleSheet(
             """
             background-color: rgba(66, 214, 199, 0.12);
-            border: 1px solid #2f8e85;
+            border: none;
             border-radius: 12px;
             color: #9ff3ea;
             padding: 0 16px;
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 700;
             """
         )
@@ -483,7 +582,7 @@ class VisualizeWindow(QMainWindow):
                 border: 1px solid #313948;
                 border-radius: 12px;
                 color: #edf2f8;
-                font-size: 12px;
+                font-size: 13px;
                 font-weight: 700;
                 padding: 0 18px;
             }
@@ -527,14 +626,14 @@ class VisualizeWindow(QMainWindow):
 
         self.selected_file_label = QLabel("No image selected")
         self.selected_file_label.setWordWrap(True)
-        self.selected_file_label.setStyleSheet("color:#8e97a6; font-size:11px;")
+        self.selected_file_label.setStyleSheet("color:#8e97a6; font-size:12px;")
         layout.addWidget(self.selected_file_label)
 
         layout.addWidget(self.label_title("Visual Preset"))
         preset_grid = QGridLayout()
         preset_grid.setSpacing(12)
         for index, (key, config) in enumerate(self.preset_catalog.items()):
-            card = PresetCard(key, config["title"], config["subtitle"], config["accent"], config["source"])
+            card = PresetCard(key, config["title"], config["subtitle"], config["accent"], config["source"], config.get("image", ""))
             card.on_click = self.select_preset
             self.preset_cards.append(card)
             preset_grid.addWidget(card, index // 2, index % 2)
@@ -542,7 +641,7 @@ class VisualizeWindow(QMainWindow):
 
         self.preset_description = QLabel()
         self.preset_description.setWordWrap(True)
-        self.preset_description.setStyleSheet("color:#78e2d7; font-size:10px;")
+        self.preset_description.setStyleSheet("color:#78e2d7; font-size:12px;")
         layout.addWidget(self.preset_description)
 
         layout.addWidget(self.label_title("Instructions"))
@@ -601,7 +700,7 @@ class VisualizeWindow(QMainWindow):
         title.setStyleSheet("font-size:24px; font-weight:700; color:#f6f8fb;")
         subtitle = QLabel("Load a house photo, choose a preset, then render a cleaner and more polished facade mood.")
         subtitle.setWordWrap(True)
-        subtitle.setStyleSheet("font-size:12px; color:#8c95a4;")
+        subtitle.setStyleSheet("font-size:13px; color:#8c95a4;")
         layout.addWidget(title)
         layout.addWidget(subtitle)
 
@@ -610,9 +709,10 @@ class VisualizeWindow(QMainWindow):
         layout.addWidget(self.preview_canvas, 1)
 
         bottom = QFrame()
+        bottom.setObjectName("previewBottomFrame")
         bottom.setStyleSheet(
             """
-            QFrame {
+            QFrame#previewBottomFrame {
                 background-color: #10141b;
                 border: 1px solid #1f2631;
                 border-radius: 22px;
@@ -625,13 +725,37 @@ class VisualizeWindow(QMainWindow):
 
         self.status_label = QLabel()
         self.status_label.setWordWrap(True)
-        self.status_label.setStyleSheet("color:#d4dbe5; font-size:12px;")
+        self.status_label.setStyleSheet("color:#d4dbe5; font-size:14px;")
         bottom_layout.addWidget(self.status_label)
 
         self.summary_label = QLabel()
         self.summary_label.setWordWrap(True)
-        self.summary_label.setStyleSheet("color:#8791a1; font-size:11px;")
-        bottom_layout.addWidget(self.summary_label)
+        self.summary_label.setStyleSheet("color:#8791a1; font-size:12px;")
+        summary_row = QHBoxLayout()
+        summary_row.setSpacing(8)
+        summary_row.addWidget(self.summary_label, 1)
+
+        self.copy_prompt_button = QPushButton("📋")
+        self.copy_prompt_button.setCursor(Qt.PointingHandCursor)
+        self.copy_prompt_button.setFixedSize(34, 34)
+        self.copy_prompt_button.setStyleSheet(
+            """
+            QPushButton {
+                background-color: #1a1f27;
+                border: none;
+                border-radius: 10px;
+                color: #edf2f8;
+                font-size: 16px;
+                padding: 0px;
+            }
+            QPushButton:hover {
+                background-color: #202733;
+            }
+            """
+        )
+        self.copy_prompt_button.clicked.connect(self.copy_prompt_to_clipboard)
+        summary_row.addWidget(self.copy_prompt_button, 0, Qt.AlignTop)
+        bottom_layout.addLayout(summary_row)
 
         action_row = QHBoxLayout()
         action_row.setSpacing(10)
@@ -655,7 +779,7 @@ class VisualizeWindow(QMainWindow):
         bottom_layout.addLayout(action_row)
 
         gallery_title = QLabel("Result History")
-        gallery_title.setStyleSheet("color:#f3f6fa; font-size:12px; font-weight:700;")
+        gallery_title.setStyleSheet("color:#f3f6fa; font-size:13px; font-weight:700;")
         bottom_layout.addWidget(gallery_title)
 
         self.history_scroll = QScrollArea()
@@ -714,7 +838,7 @@ class VisualizeWindow(QMainWindow):
             "Image generation uses gemini-2.5-flash-image and usually needs image-model access or billing."
         )
         self.billing_hint_label.setWordWrap(True)
-        self.billing_hint_label.setStyleSheet("color:#f1c27d; font-size:10px;")
+        self.billing_hint_label.setStyleSheet("color:#f1c27d; font-size:12px;")
         layout.addWidget(self.billing_hint_label)
 
         self.test_api_button = self.secondary_button("Test API Key")
@@ -741,8 +865,24 @@ class VisualizeWindow(QMainWindow):
             self.tool_rows.append(row)
             layout.addWidget(row)
 
-        self.add_object_card = self.info_card("Add Objects", "Reserved for future object placement support")
-        self.site_context_card = self.info_card("Site Context", "Reserved for environment and location presets")
+        self.add_object_card = self.info_card("Add Objects", "Upload a reference image to place into the next render.")
+        self.add_object_button = self.secondary_button("Choose Object Image")
+        self.add_object_button.clicked.connect(self.open_object_image)
+        self.add_object_card.layout().addWidget(self.add_object_button)
+        self.add_object_value = QLabel("No object image selected")
+        self.add_object_value.setWordWrap(True)
+        self.add_object_value.setStyleSheet("color:#7fdcd0; font-size:11px;")
+        self.add_object_card.layout().addWidget(self.add_object_value)
+
+        self.site_context_card = self.info_card("Site Context", "Add neighborhood, roads, plants, and environment details.")
+        self.site_context_button = self.secondary_button("Configure Site Context")
+        self.site_context_button.clicked.connect(self.configure_site_context)
+        self.site_context_card.layout().addWidget(self.site_context_button)
+        self.site_context_value = QLabel("No site context configured")
+        self.site_context_value.setWordWrap(True)
+        self.site_context_value.setStyleSheet("color:#7fdcd0; font-size:11px;")
+        self.site_context_card.layout().addWidget(self.site_context_value)
+
         layout.addWidget(self.add_object_card)
         layout.addWidget(self.site_context_card)
 
@@ -759,19 +899,19 @@ class VisualizeWindow(QMainWindow):
         title_label = QLabel(title)
         title_label.setStyleSheet("color:#f6f8fb; font-size:20px; font-weight:700;")
         subtitle_label = QLabel(subtitle)
-        subtitle_label.setStyleSheet("color:#818a98; font-size:11px;")
+        subtitle_label.setStyleSheet("color:#818a98; font-size:12px;")
         layout.addWidget(title_label)
         layout.addWidget(subtitle_label)
         return frame
 
     def label_title(self, text):
         label = QLabel(text)
-        label.setStyleSheet("color:#f4f7fb; font-size:13px; font-weight:700;")
+        label.setStyleSheet("color:#f4f7fb; font-size:14px; font-weight:700;")
         return label
 
     def small_label(self, text):
         label = QLabel(text)
-        label.setStyleSheet("color:#8892a0; font-size:10px; font-weight:700;")
+        label.setStyleSheet("color:#8892a0; font-size:11px; font-weight:700;")
         return label
 
     def primary_button(self, text, accent_a="#42d6c7", accent_b="#4d95ff"):
@@ -785,7 +925,7 @@ class VisualizeWindow(QMainWindow):
                 border:none;
                 border-radius: 14px;
                 color:#081315;
-                font-size:13px;
+                font-size:14px;
                 font-weight:800;
                 padding: 0 18px;
             }}
@@ -804,16 +944,16 @@ class VisualizeWindow(QMainWindow):
             """
             QPushButton {
                 background-color: #1a1f27;
-                border: 1px solid #313847;
+                border: none;
                 border-radius: 14px;
                 color: #edf2f8;
-                font-size: 12px;
+                font-size: 13px;
                 font-weight: 700;
                 padding: 0 16px;
                 text-align: center;
             }
             QPushButton:hover {
-                border-color: #42d6c7;
+                background-color: #202733;
             }
             """
         )
@@ -832,9 +972,10 @@ class VisualizeWindow(QMainWindow):
 
     def build_option_group(self, parent_layout, title, options, accent):
         box = QFrame()
+        box.setObjectName("optionGroupFrame")
         box.setStyleSheet(
             """
-            QFrame {
+            QFrame#optionGroupFrame {
                 background-color: #161b23;
                 border: 1px solid #262d38;
                 border-radius: 18px;
@@ -860,9 +1001,10 @@ class VisualizeWindow(QMainWindow):
 
     def info_card(self, title, description):
         box = QFrame()
+        box.setObjectName("infoCardFrame")
         box.setStyleSheet(
             """
-            QFrame {
+            QFrame#infoCardFrame {
                 background-color: #151a22;
                 border: 1px solid #2a323e;
                 border-radius: 18px;
@@ -873,13 +1015,54 @@ class VisualizeWindow(QMainWindow):
         layout.setContentsMargins(16, 14, 16, 14)
         layout.setSpacing(4)
         title_label = QLabel(title)
-        title_label.setStyleSheet("color:#f5f7fa; font-size:13px; font-weight:800;")
+        title_label.setStyleSheet("color:#f5f7fa; font-size:14px; font-weight:800;")
         desc_label = QLabel(description)
         desc_label.setWordWrap(True)
-        desc_label.setStyleSheet("color:#8390a0; font-size:10px;")
+        desc_label.setStyleSheet("color:#8390a0; font-size:11px;")
         layout.addWidget(title_label)
         layout.addWidget(desc_label)
         return box
+
+    def copy_prompt_to_clipboard(self):
+        prompt = (self.latest_refined_prompt or self.prompt_input.toPlainText()).strip()
+        if not prompt:
+            self.set_status("There is no prompt to copy yet.")
+            return
+        QApplication.clipboard().setText(prompt)
+        self.set_status("Prompt copied to clipboard.")
+
+    def open_object_image(self):
+        file_path, _ = QFileDialog.getOpenFileName(
+            self,
+            "Select object reference image",
+            "",
+            "Image Files (*.png *.jpg *.jpeg *.bmp *.webp)",
+        )
+        if not file_path:
+            return
+        pixmap = QPixmap(file_path)
+        if pixmap.isNull():
+            self.set_status("The selected object image could not be opened.")
+            return
+        self.object_reference_pixmap = pixmap
+        self.object_file_path = file_path
+        self.add_object_value.setText(os.path.basename(file_path))
+        self.set_status("Object reference image added. The next render will blend it into the scene if possible.")
+        self.update_summary()
+
+    def configure_site_context(self):
+        text, ok = QInputDialog.getMultiLineText(
+            self,
+            "Site Context",
+            "Describe the neighborhood, road condition, landscaping, climate, and surrounding environment:",
+            self.site_context_text,
+        )
+        if not ok:
+            return
+        self.site_context_text = text.strip()
+        self.site_context_value.setText(self.site_context_text or "No site context configured")
+        self.set_status("Site context updated." if self.site_context_text else "Site context cleared.")
+        self.update_summary()
 
     def make_exclusive(self, buttons):
         for button in buttons:
@@ -932,11 +1115,19 @@ class VisualizeWindow(QMainWindow):
     def reset_workspace(self):
         self.source_pixmap = QPixmap()
         self.generated_pixmap = QPixmap()
+        self.object_reference_pixmap = QPixmap()
         self.current_file_path = ""
+        self.object_file_path = ""
+        self.site_context_text = ""
+        self.latest_style_summary = ""
+        self.latest_refined_prompt = ""
+        self.latest_negative_prompt = "text, watermark, logo, signage, blurry facade, distorted proportions"
         self.seed_value = None
         self.preview_canvas.clear_canvas()
         self.clear_history()
         self.selected_file_label.setText("No image selected")
+        self.add_object_value.setText("No object image selected")
+        self.site_context_value.setText("No site context configured")
         self.seed_input.clear()
         self.prompt_input.clear()
         self.api_key_input.setText(os.getenv("GEMINI_API_KEY", ""))
@@ -968,7 +1159,7 @@ class VisualizeWindow(QMainWindow):
 
         first_preset = None
         for card in self.preset_cards:
-            if card.key == "late-afternoon-luxury":
+            if card.key == self.active_preset_key:
                 first_preset = card
             card.set_active(False)
         if first_preset:
@@ -976,11 +1167,13 @@ class VisualizeWindow(QMainWindow):
 
     def select_preset(self, preset_card, update_status=True):
         self.active_preset_key = preset_card.key
+        self.latest_style_summary = ""
+        self.latest_refined_prompt = ""
+        self.latest_negative_prompt = "text, watermark, logo, signage, blurry facade, distorted proportions"
         for card in self.preset_cards:
             card.set_active(card is preset_card)
         self.preset_description.setText(self.preset_catalog[preset_card.key]["prompt"])
-        if not self.prompt_input.toPlainText().strip():
-            self.prompt_input.setPlainText(self.preset_catalog[preset_card.key]["prompt"])
+        self.prompt_input.setPlainText(self.preset_catalog[preset_card.key]["prompt"])
         if update_status:
             self.set_status(f"Preset selected: {preset_card.title}. This style will guide the generated facade mood.")
 
@@ -1080,24 +1273,33 @@ class VisualizeWindow(QMainWindow):
 
         self.set_status("Analyzing with gemini-2.5-flash text model...")
         try:
-            analysis = self.call_text_analysis(api_key, prompt)
+            refined_prompt, analysis, negative_prompt = self.call_text_analysis(api_key, prompt)
         except RuntimeError as error:
             self.set_status(str(error))
             return
 
+        if refined_prompt:
+            self.prompt_input.setPlainText(refined_prompt)
+            self.latest_refined_prompt = refined_prompt
+        self.latest_style_summary = analysis
+        self.latest_negative_prompt = negative_prompt or self.latest_negative_prompt
         self.session_state_label.setText("TEXT OK")
         self.set_status("Text analysis complete using gemini-2.5-flash.")
-        self.summary_label.setText(analysis)
+        self.summary_label.setText(f"{analysis}\nNegative prompt: {negative_prompt}")
 
     def show_tool_message(self, tool_name):
         self.set_status(f"{tool_name} is available as a workflow control. The button now acts as a quick action placeholder.")
 
     def update_summary(self):
         file_name = os.path.basename(self.current_file_path) if self.current_file_path else "No source image"
+        object_name = os.path.basename(self.object_file_path) if self.object_file_path else "No object"
+        context_preview = self.site_context_text[:40] + ("..." if len(self.site_context_text) > 40 else "")
+        if not context_preview:
+            context_preview = "No site context"
         summary = (
             f"Source: {file_name} | Preset: {self.preset_catalog[self.active_preset_key]['title']} | "
             f"Time: {self.selected_text(self.time_buttons)} | Weather: {self.selected_text(self.weather_buttons)} | "
-            f"Resolution: {self.selected_text(self.resolution_buttons)}"
+            f"Resolution: {self.selected_text(self.resolution_buttons)} | Object: {object_name} | Context: {context_preview}"
         )
         self.summary_label.setText(summary)
 
@@ -1121,18 +1323,27 @@ class VisualizeWindow(QMainWindow):
     def build_generation_prompt(self):
         base_prompt = self.preset_catalog[self.active_preset_key]["prompt"]
         user_prompt = self.prompt_input.toPlainText().strip()
+        effective_prompt = user_prompt or base_prompt
         time_of_day = self.selected_text(self.time_buttons)
         weather = self.selected_text(self.weather_buttons)
         camera = self.selected_text(self.camera_buttons)
         render_style = self.selected_text(self.render_style_buttons["buttons"])
         prompt_parts = [
-            base_prompt,
-            user_prompt if user_prompt else "",
+            effective_prompt,
             f"Camera: {camera}.",
             f"Time of day: {time_of_day}.",
             f"Weather: {weather}.",
             f"Style target: {render_style}, realistic architectural visualization, high-end residential facade, photoreal result.",
+            "Match the preset reference image mood with believable landscaping, front yard composition, trees, plants, sidewalk, driveway, and neighborhood atmosphere around the house.",
         ]
+        if self.latest_style_summary:
+            prompt_parts.append(f"Preset analysis summary: {self.latest_style_summary}")
+        if self.site_context_text:
+            prompt_parts.append(f"Site context: {self.site_context_text}.")
+        if not self.object_reference_pixmap.isNull():
+            prompt_parts.append("Blend the uploaded object reference naturally into the scene with correct scale, lighting, and realistic placement.")
+        if self.latest_negative_prompt:
+            prompt_parts.append(f"Avoid: {self.latest_negative_prompt}.")
         if self.smart_enhance.toggle.isChecked():
             prompt_parts.append("Keep details crisp, clean lines, realistic materials, balanced light and shadow.")
         if self.editor_mode.toggle.isChecked():
@@ -1233,17 +1444,49 @@ class VisualizeWindow(QMainWindow):
             "https://generativelanguage.googleapis.com/v1beta/models/"
             f"{self.text_test_model_name}:generateContent"
         )
+        preset = self.preset_catalog[self.active_preset_key]
         analysis_prompt = (
-            "You are an architectural visualization assistant. "
-            "Analyze this user request and respond in 4 short lines: "
-            "1. facade style, 2. lighting advice, 3. landscaping advice, 4. render recommendation. "
-            f"User request: {prompt}"
+            "You are an expert architectural visualization prompt engineer. "
+            "Analyze the uploaded house image together with the selected preset reference image and any object reference. "
+            "Use the preset reference image as the main style anchor. Preserve the uploaded building's core proportions and layout, but transfer the preset's facade language, roof character, lighting, landscaping, street atmosphere, and mood with photoreal accuracy. "
+            "Extract the exact facade language, lighting, roof form, materials, landscaping, street context, front yard composition, camera composition, and realism cues. "
+            "Return JSON with keys: refined_prompt, style_summary, negative_prompt. "
+            "The refined_prompt must be a single highly specific prompt for photoreal image generation, under 140 words, "
+            "and must explicitly say no text, no watermark, no logo, no signage. "
+            "The style_summary must be 3 short sentences. "
+            "The negative_prompt must be a comma-separated line of things to avoid. "
+            "If site context is provided, incorporate it naturally. "
+            "If an object reference is provided, mention realistic placement, scale, and matching light direction.\n\n"
+            f"Selected preset title: {preset['title']}\n"
+            f"Selected preset base prompt: {preset['prompt']}\n"
+            f"Selected preset style hint: {preset.get('analysis_hint', '')}\n"
+            f"User instructions: {prompt}\n"
+            f"Site context: {self.site_context_text or 'None'}\n"
+            f"Object reference included: {'Yes' if self.object_file_path else 'No'}\n"
+            f"Scene settings: camera={self.selected_text(self.camera_buttons)}, "
+            f"time_of_day={self.selected_text(self.time_buttons)}, "
+            f"weather={self.selected_text(self.weather_buttons)}, "
+            f"render_style={self.selected_text(self.render_style_buttons['buttons'])}."
         )
+        parts = [{"text": analysis_prompt}]
+        preset_inline_data = self.preset_inline_data(self.active_preset_key)
+        if preset_inline_data:
+            parts.append({"inlineData": preset_inline_data})
+        if self.current_file_path and os.path.exists(self.current_file_path):
+            mime_type = mimetypes.guess_type(self.current_file_path)[0] or "image/jpeg"
+            with open(self.current_file_path, "rb") as image_file:
+                encoded_image = base64.b64encode(image_file.read()).decode("utf-8")
+            parts.append({"inlineData": {"mimeType": mime_type, "data": encoded_image}})
+        if self.object_file_path and os.path.exists(self.object_file_path):
+            mime_type = mimetypes.guess_type(self.object_file_path)[0] or "image/jpeg"
+            with open(self.object_file_path, "rb") as image_file:
+                encoded_image = base64.b64encode(image_file.read()).decode("utf-8")
+            parts.append({"inlineData": {"mimeType": mime_type, "data": encoded_image}})
         payload = {
             "contents": [
                 {
                     "role": "user",
-                    "parts": [{"text": analysis_prompt}],
+                    "parts": parts,
                 }
             ],
             "generationConfig": {"responseModalities": ["TEXT"]},
@@ -1252,7 +1495,51 @@ class VisualizeWindow(QMainWindow):
         response_text = self.extract_text_from_response(response_json)
         if not response_text:
             raise RuntimeError("Text analysis succeeded but no text response was returned.")
-        return response_text
+        refined_prompt = prompt
+        style_summary = response_text
+        negative_prompt = "text, watermark, logo, signage, blurry facade, distorted proportions"
+        try:
+            parsed = json.loads(response_text)
+            refined_prompt = parsed.get("refined_prompt", refined_prompt).strip() or refined_prompt
+            style_summary = parsed.get("style_summary", style_summary).strip() or style_summary
+            negative_prompt = parsed.get("negative_prompt", negative_prompt).strip() or negative_prompt
+        except json.JSONDecodeError:
+            pass
+        return refined_prompt, style_summary, negative_prompt
+
+    def preset_inline_data(self, preset_key):
+        preset = self.preset_catalog.get(preset_key)
+        if not preset:
+            return None
+        image_path = preset.get("image", "")
+        if not image_path or not os.path.exists(image_path):
+            return None
+        cleaned = clean_reference_pixmap(QPixmap(image_path))
+        return self.pixmap_to_inline_data(cleaned)
+
+    def current_render_base_inline_data(self):
+        if self.current_file_path and os.path.exists(self.current_file_path):
+            mime_type = mimetypes.guess_type(self.current_file_path)[0] or "image/jpeg"
+            with open(self.current_file_path, "rb") as image_file:
+                encoded_image = base64.b64encode(image_file.read()).decode("utf-8")
+            return {"mimeType": mime_type, "data": encoded_image}
+        if not self.generated_pixmap.isNull():
+            return self.pixmap_to_inline_data(self.generated_pixmap)
+        return None
+
+    def pixmap_to_inline_data(self, pixmap):
+        if pixmap.isNull():
+            return None
+        temp_path = BASE_DIR / "_temp_generated_reference.png"
+        pixmap.save(str(temp_path), "PNG")
+        try:
+            encoded_image = base64.b64encode(temp_path.read_bytes()).decode("utf-8")
+        finally:
+            try:
+                temp_path.unlink()
+            except OSError:
+                pass
+        return {"mimeType": "image/png", "data": encoded_image}
 
     def call_gemini_image_api(self, api_key, prompt):
         endpoint = (
@@ -1260,9 +1547,15 @@ class VisualizeWindow(QMainWindow):
             f"{self.api_model_name}:generateContent"
         )
         parts = [{"text": prompt}]
-        if self.current_file_path and os.path.exists(self.current_file_path):
-            mime_type = mimetypes.guess_type(self.current_file_path)[0] or "image/jpeg"
-            with open(self.current_file_path, "rb") as image_file:
+        preset_inline_data = self.preset_inline_data(self.active_preset_key)
+        if preset_inline_data:
+            parts.append({"inlineData": preset_inline_data})
+        base_inline_data = self.current_render_base_inline_data()
+        if base_inline_data:
+            parts.append({"inlineData": base_inline_data})
+        if self.object_file_path and os.path.exists(self.object_file_path):
+            mime_type = mimetypes.guess_type(self.object_file_path)[0] or "image/jpeg"
+            with open(self.object_file_path, "rb") as image_file:
                 encoded_image = base64.b64encode(image_file.read()).decode("utf-8")
             parts.append({"inlineData": {"mimeType": mime_type, "data": encoded_image}})
 
@@ -1439,7 +1732,7 @@ class VisualizeWindow(QMainWindow):
 
 def main():
     app = QApplication(sys.argv)
-    app.setFont(QFont("Segoe UI", 10))
+    app.setFont(QFont("Segoe UI", 11))
     window = VisualizeWindow()
     window.show()
     sys.exit(app.exec_())

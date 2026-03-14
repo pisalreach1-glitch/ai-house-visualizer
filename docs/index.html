@@ -169,53 +169,53 @@
 
   <script>
     const PRESETS = {
-      "festive-urban-residence": {
-        title: "Festive Urban Residence",
-        note: "Warm sunset light, luxury facade, wood screen details",
-        prompt: "modern luxury urban residence, warm sunset lighting, vertical wood screen facade, premium landscaping, elegant driveway, cinematic architectural photography, no text, no watermark",
-        image: "./assets/festive-urban-residence.jpg",
-        position: "center 42%",
-        analysis_hint: "Focus on the night-blue sky, warm interior glow, stone wall planes, tropical planting, wet reflective pavement, and a premium corner-lot composition."
-      },
       "brick-roof-loft": {
-        title: "Brick Roof Loft",
-        note: "Compact two-story home, red tile roof, soft evening mood",
-        prompt: "compact two story home, red tile roof, lush balcony plants, warm interior glow, cozy residential facade, realistic street-front architectural photo, no text, no watermark",
+        title: "Slim Vertical House",
+        note: "Tall narrow townhouse with greenery and street motion",
+        prompt: "slim multi-story urban townhouse, hanging greenery, planted balconies, warm interior windows, narrow-lot facade, realistic street context with road and passing motion, clean minimalist massing, no text, no watermark, no logo",
         image: "./assets/brick-roof-loft.jpg",
         position: "center 40%",
-        analysis_hint: "Focus on the slim lot, red roof tiles, planted balcony edge, warm evening window light, and realistic street-front composition for a compact family home."
+        analysis_hint: "Focus on the tall narrow proportions, planted balconies, minimalist white walls, warm interior windows, nearby greenery, and believable urban street-level realism on a tight lot."
       },
       "garden-c4-bungalow": {
-        title: "Garden C4 Bungalow",
-        note: "Clean single-floor villa, open yard, elegant modern entry",
-        prompt: "single floor modern bungalow, wide front yard, clean landscape, elegant front porch, premium residential photography, balanced greenery, no text, no watermark",
+        title: "Garden C4 Courtyard",
+        note: "Compact two-story home with planted balcony and calm courtyard",
+        prompt: "compact two story courtyard home, red clay tile roof, planted balcony, warm interior lighting, cozy front garden, open metal gate, realistic residential street-front architecture, soft dusk sky, clean sidewalk, calm neighborhood context, no text, no watermark, no logo",
         image: "./assets/garden-c4-bungalow.jpg",
         position: "center 44%",
-        analysis_hint: "Focus on the open front courtyard, minimalist one-story massing, soft dusk light, clean paved forecourt, and balanced trees framing the facade."
+        analysis_hint: "Focus on the compact two-story proportions, red tile roof, planted balcony edge, warm evening window light, quiet front courtyard, open gate, and realistic family-house street-front composition with a calm dusk atmosphere."
       },
-      "soft-morning-cottage": {
-        title: "Soft Morning Cottage",
-        note: "Fresh daylight, minimal facade, calm family-home look",
-        prompt: "soft morning family cottage, clean gray and white facade, fresh lawn, warm window light, refined residential exterior, realistic architectural photo, no text, no watermark",
+      "garden-c4-streetfront": {
+        title: "Streetfront Garden C4",
+        note: "Open-gate bungalow with roadside trees and front landscape",
         image: "./assets/soft-morning-cottage.jpg",
         position: "center 46%",
-        analysis_hint: "Focus on the clean suburban family-house look, bright natural sunlight, trimmed lawn, soft gray trim, and welcoming carport facade."
+        prompt: "modern bungalow street-front view, open metal gate, broad front courtyard, roadside trees, visible road and sidewalk, realistic neighborhood environment, daylight architectural photography, subtle motion blur from passing traffic, no text, no watermark, no logo",
+        analysis_hint: "Focus on the open gate, broad front courtyard, mature roadside trees, visible road and sidewalk, passing street activity, and calm suburban landscaping context in bright natural daylight."
       },
-      "grand-glass-residence": {
-        title: "Grand Glass Residence",
-        note: "Three-story luxury home, large windows, premium frontage",
-        prompt: "three story luxury residence, large glass windows, stone and dark metal accents, warm interior lighting, premium garden frontage, photoreal architectural exterior, no text, no watermark",
-        image: "./assets/grand-glass-residence.jpg",
+      "night-garden-cottage": {
+        title: "Night Garden Cottage",
+        note: "Small warm home with lush tropical landscaping at night",
+        prompt: "small tropical cottage at night, warm garden lighting, tiled roof, lush tropical landscaping, flowering foreground plants, cozy realistic house facade, soft blue evening sky, cinematic residential environment, no text, no watermark, no logo",
+        image: "./assets/tropical-night.jpg",
         position: "center 41%",
-        analysis_hint: "Focus on the strong symmetry, three-story glass facade, premium landscape edging, soft dusk sky, and high-end real-estate photography realism."
+        analysis_hint: "Focus on the intimate small-house proportions, warm night lighting, tiled roof, dense tropical foreground plants, flowering garden edges, soft blue sky, and cozy landscaped evening mood."
       },
       "classic-palm-villa": {
-        title: "Classic Palm Villa",
+        title: "Classic Palm Villa", 
         note: "Elegant classic facade, palm trees, premium driveway mood",
-        prompt: "classic luxury villa facade, symmetrical composition, palm trees, chandelier foyer, premium driveway, elegant residential architecture, realistic exterior render, no text, no watermark",
+        prompt: "classic luxury villa facade at twilight, symmetrical composition, palm trees, layered shrubs, chandelier foyer, premium curved driveway, warm luxury lighting, elegant residential landscape, realistic night exterior, no text, no watermark, no logo",
         image: "./assets/classic-palm-villa.jpg",
         position: "center 45%",
-        analysis_hint: "Focus on the classical facade language, white columns, warm luxury night lighting, tropical palms, and a premium villa driveway presentation."
+        analysis_hint: "Focus on the classical villa language, symmetrical massing, bright warm lighting, palm-lined driveway, layered tropical shrubs, chandelier entry, and premium luxury residential night atmosphere."
+      },
+      "slim-urban-house": {
+        title: "Grand Glass Residence",
+        note: "Modern three-story villa with glass facade and elegant front garden",
+        prompt: "modern three-story luxury residence, expansive glass facade, dark metal and stone accents, symmetrical front elevation, warm interior lighting, elegant front garden, clean premium driveway, refined suburban neighborhood, realistic dusk architectural photography, lush but controlled landscaping, no text, no watermark, no logo",
+        image: "./assets/grand-glass-residence.jpg",
+        position: "center 41%",
+        analysis_hint: "Focus on the premium three-story massing, large glass windows, dark modern trim, vertical center screen detail, balanced landscaping, clean driveway composition, and realistic luxury residential dusk atmosphere."
       }
     };
 
@@ -237,7 +237,7 @@
     const weatherSelect = document.getElementById("weatherSelect");
     const renderStyleSelect = document.getElementById("renderStyleSelect");
 
-    let activePreset = "festive-urban-residence";
+    let activePreset = "brick-roof-loft";
     let sourceImageDataUrl = "";
     let generatedImageDataUrl = "";
 
