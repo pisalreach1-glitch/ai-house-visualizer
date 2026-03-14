@@ -401,7 +401,15 @@
     });
 
     document.getElementById("analyzeBtn").addEventListener("click", async () => {
-      await runRequest("/api/analyze", buildPayload(), "TEXT OK", true);
+      const response = await runRequest("/api/analyze", buildPayload(), "TEXT OK", true);
+      if (response && response.ok) {
+        if (response.refinedPrompt) {
+          promptInput.value = response.refinedPrompt;
+        }
+        summaryText.textContent = [response.analysis, `Negative prompt: ${response.negativePrompt || ""}`]
+          .filter(Boolean)
+          .join("\n");
+      }
     });
 
     document.getElementById("generateBtn").addEventListener("click", async () => {
@@ -468,7 +476,9 @@
         }
         sessionState.textContent = successState;
         statusText.textContent = data.message || "Success.";
-        if (textOnly) summaryText.textContent = data.message || "";
+        if (textOnly) {
+          summaryText.textContent = data.analysis || data.message || "";
+        }
         return data;
       } catch (error) {
         sessionState.textContent = "ERROR";

@@ -1,12 +1,15 @@
+import base64
 import json
 import urllib.error
 import urllib.request
+from pathlib import Path
 
 from flask import Flask, jsonify, render_template, request
 
 
 IMAGE_MODEL = "gemini-2.5-flash-image"
 TEXT_MODEL = "gemini-2.5-flash"
+BASE_DIR = Path(__file__).resolve().parent
 
 PRESETS = {
     "festive-urban-residence": {
@@ -15,6 +18,7 @@ PRESETS = {
         "prompt": "modern luxury urban residence, warm sunset lighting, vertical wood screen facade, premium landscaping, elegant driveway, cinematic architectural photography, no text, no watermark",
         "image": "/static/assets/festive-urban-residence.jpg",
         "position": "center 42%",
+        "analysis_hint": "Focus on the night-blue sky, warm interior glow, stone wall planes, tropical planting, wet reflective pavement, and a premium corner-lot composition.",
     },
     "brick-roof-loft": {
         "title": "Brick Roof Loft",
@@ -22,6 +26,7 @@ PRESETS = {
         "prompt": "compact two story home, red tile roof, lush balcony plants, warm interior glow, cozy residential facade, realistic street-front architectural photo, no text, no watermark",
         "image": "/static/assets/brick-roof-loft.jpg",
         "position": "center 40%",
+        "analysis_hint": "Focus on the slim lot, red roof tiles, planted balcony edge, warm evening window light, and realistic street-front composition for a compact family home.",
     },
     "garden-c4-bungalow": {
         "title": "Garden C4 Bungalow",
@@ -29,6 +34,7 @@ PRESETS = {
         "prompt": "single floor modern bungalow, wide front yard, clean landscape, elegant front porch, premium residential photography, balanced greenery, no text, no watermark",
         "image": "/static/assets/garden-c4-bungalow.jpg",
         "position": "center 44%",
+        "analysis_hint": "Focus on the open front courtyard, minimalist one-story massing, soft dusk light, clean paved forecourt, and balanced trees framing the facade.",
     },
     "soft-morning-cottage": {
         "title": "Soft Morning Cottage",
@@ -36,6 +42,7 @@ PRESETS = {
         "prompt": "soft morning family cottage, clean gray and white facade, fresh lawn, warm window light, refined residential exterior, realistic architectural photo, no text, no watermark",
         "image": "/static/assets/soft-morning-cottage.jpg",
         "position": "center 46%",
+        "analysis_hint": "Focus on the clean suburban family-house look, bright natural sunlight, trimmed lawn, soft gray trim, and welcoming carport facade.",
     },
     "grand-glass-residence": {
         "title": "Grand Glass Residence",
@@ -43,6 +50,7 @@ PRESETS = {
         "prompt": "three story luxury residence, large glass windows, stone and dark metal accents, warm interior lighting, premium garden frontage, photoreal architectural exterior, no text, no watermark",
         "image": "/static/assets/grand-glass-residence.jpg",
         "position": "center 41%",
+        "analysis_hint": "Focus on the strong symmetry, three-story glass facade, premium landscape edging, soft dusk sky, and high-end real-estate photography realism.",
     },
     "classic-palm-villa": {
         "title": "Classic Palm Villa",
@@ -50,6 +58,7 @@ PRESETS = {
         "prompt": "classic luxury villa facade, symmetrical composition, palm trees, chandelier foyer, premium driveway, elegant residential architecture, realistic exterior render, no text, no watermark",
         "image": "/static/assets/classic-palm-villa.jpg",
         "position": "center 45%",
+        "analysis_hint": "Focus on the classical facade language, white columns, warm luxury night lighting, tropical palms, and a premium villa driveway presentation.",
     },
 }
 
@@ -113,17 +122,33 @@ def extract_image_base64(response_json):
     return None, None
 
 
+def preset_inline_data(preset_key):
+    preset = PRESETS.get(preset_key)
+    if not preset:
+        return None
+    relative_path = preset.get("image", "").replace("/static/", "static/", 1).lstrip("/\\")
+    image_path = BASE_DIR / relative_path
+    if not image_path.exists():
+        return None
+    suffix = image_path.suffix.lower()
+    mime_type = "image/png" if suffix == ".png" else "image/jpeg"
+    return {
+        "mimeType": mime_type,
+        "data": base64.b64encode(image_path.read_bytes()).decode("ascii"),
+    }
+
+
 def build_generation_prompt(data):
-    preset_key = data.get("preset", "late-afternoon-luxury")
-    preset = PRESETS.get(preset_key, PRESETS["late-afternoon-luxury"])
+    preset_key = data.get("preset", "festive-urban-residence")
+    preset = PRESETS.get(preset_key, PRESETS["festive-urban-residence"])
     prompt = data.get("prompt", "").strip()
+    base_prompt = prompt or preset["prompt"]
     time_of_day = data.get("time_of_day", "Default")
     weather = data.get("weather", "Clear Skies")
     camera = data.get("camera", "Default")
     render_style = data.get("render_style", "Photo")
     parts = [
-        preset["prompt"],
-        prompt,
+        base_prompt,
         f"Camera: {camera}.",
         f"Time of day: {time_of_day}.",
         f"Weather: {weather}.",
@@ -164,21 +189,46 @@ def analyze():
     if not api_key:
         return jsonify({"ok": False, "message": "សូមបញ្ចូល Gemini API key មុនពេល analyze។"}), 400
 
+    preset_key = data.get("preset", "festive-urban-residence")
+    preset = PRESETS.get(preset_key, PRESETS["festive-urban-residence"])
     prompt = build_generation_prompt(data)
+    analysis_instruction = (
+        "You are an expert architectural visualization prompt engineer. "
+        "Analyze the uploaded house image together with the selected preset reference image. "
+        "Extract the exact facade language, lighting, roof form, materials, landscaping, camera composition, and realism cues. "
+        "Return JSON with keys: refined_prompt, style_summary, negative_prompt. "
+        "The refined_prompt must be a single highly specific prompt for photoreal image generation, under 140 words, "
+        "and must explicitly say no text, no watermark, no logo, no signage. "
+        "The style_summary must be 3 short sentences. "
+        "The negative_prompt must be a comma-separated line of things to avoid."
+    )
+    parts = [
+        {
+            "text": (
+                f"{analysis_instruction}\n\n"
+                f"Selected preset title: {preset['title']}\n"
+                f"Selected preset base prompt: {preset['prompt']}\n"
+                f"Selected preset style hint: {preset.get('analysis_hint', '')}\n"
+                f"User instructions: {(data.get('prompt') or '').strip() or 'None'}\n"
+                f"Scene settings: camera={data.get('camera', 'Default')}, "
+                f"time_of_day={data.get('time_of_day', 'Default')}, "
+                f"weather={data.get('weather', 'Clear Skies')}, "
+                f"render_style={data.get('render_style', 'Photo')}."
+            )
+        }
+    ]
+    preset_image = preset_inline_data(preset_key)
+    if preset_image:
+        parts.append({"inlineData": preset_image})
+
+    image_data_url = data.get("imageDataUrl") or ""
+    if image_data_url.startswith("data:") and "," in image_data_url:
+        header, encoded = image_data_url.split(",", 1)
+        mime_type = header.split(";")[0].replace("data:", "") or "image/jpeg"
+        parts.append({"inlineData": {"mimeType": mime_type, "data": encoded}})
+
     payload = {
-        "contents": [
-            {
-                "role": "user",
-                "parts": [{
-                    "text": (
-                        "You are an architectural visualization assistant. "
-                        "Analyze this request and respond in 4 short lines: "
-                        "1. facade style, 2. lighting advice, 3. landscaping advice, 4. render recommendation. "
-                        f"User request: {prompt}"
-                    )
-                }],
-            }
-        ],
+        "contents": [{"role": "user", "parts": parts}],
         "generationConfig": {"responseModalities": ["TEXT"]},
     }
     try:
@@ -186,7 +236,28 @@ def analyze():
     except RuntimeError as error:
         return jsonify({"ok": False, "message": str(error)}), 400
 
-    return jsonify({"ok": True, "message": extract_text(response_json) or "No analysis text returned."})
+    response_text = extract_text(response_json) or ""
+    refined_prompt = prompt
+    style_summary = response_text or "No analysis text returned."
+    negative_prompt = "text, watermark, logo, signage, blurry facade, distorted proportions"
+    if response_text:
+        try:
+            parsed = json.loads(response_text)
+            refined_prompt = parsed.get("refined_prompt", refined_prompt).strip() or refined_prompt
+            style_summary = parsed.get("style_summary", style_summary).strip() or style_summary
+            negative_prompt = parsed.get("negative_prompt", negative_prompt).strip() or negative_prompt
+        except json.JSONDecodeError:
+            pass
+
+    return jsonify(
+        {
+            "ok": True,
+            "message": "Style analysis complete.",
+            "analysis": style_summary,
+            "refinedPrompt": refined_prompt,
+            "negativePrompt": negative_prompt,
+        }
+    )
 
 
 @app.post("/api/generate")

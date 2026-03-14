@@ -174,42 +174,48 @@
         note: "Warm sunset light, luxury facade, wood screen details",
         prompt: "modern luxury urban residence, warm sunset lighting, vertical wood screen facade, premium landscaping, elegant driveway, cinematic architectural photography, no text, no watermark",
         image: "./assets/festive-urban-residence.jpg",
-        position: "center 42%"
+        position: "center 42%",
+        analysis_hint: "Focus on the night-blue sky, warm interior glow, stone wall planes, tropical planting, wet reflective pavement, and a premium corner-lot composition."
       },
       "brick-roof-loft": {
         title: "Brick Roof Loft",
         note: "Compact two-story home, red tile roof, soft evening mood",
         prompt: "compact two story home, red tile roof, lush balcony plants, warm interior glow, cozy residential facade, realistic street-front architectural photo, no text, no watermark",
         image: "./assets/brick-roof-loft.jpg",
-        position: "center 40%"
+        position: "center 40%",
+        analysis_hint: "Focus on the slim lot, red roof tiles, planted balcony edge, warm evening window light, and realistic street-front composition for a compact family home."
       },
       "garden-c4-bungalow": {
         title: "Garden C4 Bungalow",
         note: "Clean single-floor villa, open yard, elegant modern entry",
         prompt: "single floor modern bungalow, wide front yard, clean landscape, elegant front porch, premium residential photography, balanced greenery, no text, no watermark",
         image: "./assets/garden-c4-bungalow.jpg",
-        position: "center 44%"
+        position: "center 44%",
+        analysis_hint: "Focus on the open front courtyard, minimalist one-story massing, soft dusk light, clean paved forecourt, and balanced trees framing the facade."
       },
       "soft-morning-cottage": {
         title: "Soft Morning Cottage",
         note: "Fresh daylight, minimal facade, calm family-home look",
         prompt: "soft morning family cottage, clean gray and white facade, fresh lawn, warm window light, refined residential exterior, realistic architectural photo, no text, no watermark",
         image: "./assets/soft-morning-cottage.jpg",
-        position: "center 46%"
+        position: "center 46%",
+        analysis_hint: "Focus on the clean suburban family-house look, bright natural sunlight, trimmed lawn, soft gray trim, and welcoming carport facade."
       },
       "grand-glass-residence": {
         title: "Grand Glass Residence",
         note: "Three-story luxury home, large windows, premium frontage",
         prompt: "three story luxury residence, large glass windows, stone and dark metal accents, warm interior lighting, premium garden frontage, photoreal architectural exterior, no text, no watermark",
         image: "./assets/grand-glass-residence.jpg",
-        position: "center 41%"
+        position: "center 41%",
+        analysis_hint: "Focus on the strong symmetry, three-story glass facade, premium landscape edging, soft dusk sky, and high-end real-estate photography realism."
       },
       "classic-palm-villa": {
         title: "Classic Palm Villa",
         note: "Elegant classic facade, palm trees, premium driveway mood",
         prompt: "classic luxury villa facade, symmetrical composition, palm trees, chandelier foyer, premium driveway, elegant residential architecture, realistic exterior render, no text, no watermark",
         image: "./assets/classic-palm-villa.jpg",
-        position: "center 45%"
+        position: "center 45%",
+        analysis_hint: "Focus on the classical facade language, white columns, warm luxury night lighting, tropical palms, and a premium villa driveway presentation."
       }
     };
 
@@ -285,11 +291,45 @@
       if (!apiKey) return setError("សូមបញ្ចូល Gemini API key មុនពេល analyze។");
       sessionState.textContent = "WORKING";
       try {
-        const analysisPrompt = "You are an architectural visualization assistant. Analyze this request and respond in 4 short lines: 1. facade style, 2. lighting advice, 3. landscaping advice, 4. render recommendation. User request: " + buildPrompt();
-        const text = await callTextModel(apiKey, TEXT_MODEL, analysisPrompt);
+        const preset = PRESETS[activePreset];
+        const parts = [{
+          text:
+            "You are an expert architectural visualization prompt engineer. Analyze the uploaded house image together with the selected preset reference image. Extract the exact facade language, lighting, roof form, materials, landscaping, camera composition, and realism cues. Return JSON with keys: refined_prompt, style_summary, negative_prompt. The refined_prompt must be a single highly specific prompt for photoreal image generation, under 140 words, and must explicitly say no text, no watermark, no logo, no signage. The style_summary must be 3 short sentences. The negative_prompt must be a comma-separated line of things to avoid.\n\n" +
+            `Selected preset title: ${preset.title}\n` +
+            `Selected preset base prompt: ${preset.prompt}\n` +
+            `Selected preset style hint: ${preset.analysis_hint || ""}\n` +
+            `User instructions: ${promptInput.value.trim() || "None"}\n` +
+            `Scene settings: camera=${cameraSelect.value}, time_of_day=${timeSelect.value}, weather=${weatherSelect.value}, render_style=${renderStyleSelect.value}.`
+        }];
+        const presetDataUrl = await imageUrlToDataUrl(preset.image);
+        if (presetDataUrl) {
+          const [header, encoded] = presetDataUrl.split(",", 2);
+          parts.push({ inlineData: { mimeType: header.replace("data:", "").split(";")[0] || "image/jpeg", data: encoded } });
+        }
+        if (sourceImageDataUrl) {
+          const [header, encoded] = sourceImageDataUrl.split(",", 2);
+          parts.push({ inlineData: { mimeType: header.replace("data:", "").split(";")[0] || "image/jpeg", data: encoded } });
+        }
+        const response = await postGemini(TEXT_MODEL, apiKey, {
+          contents: [{ role: "user", parts }],
+          generationConfig: { responseModalities: ["TEXT"] }
+        });
+        const text = extractText(response);
+        let refinedPrompt = promptInput.value.trim();
+        let styleSummary = text || "No analysis text returned.";
+        let negativePrompt = "text, watermark, logo, signage, blurry facade, distorted proportions";
+        try {
+          const parsed = JSON.parse(text);
+          refinedPrompt = parsed.refined_prompt || refinedPrompt;
+          styleSummary = parsed.style_summary || styleSummary;
+          negativePrompt = parsed.negative_prompt || negativePrompt;
+        } catch (error) {}
+        if (refinedPrompt) {
+          promptInput.value = refinedPrompt;
+        }
         sessionState.textContent = "TEXT OK";
         statusText.textContent = "Text analysis complete using gemini-2.5-flash.";
-        summaryText.textContent = text || "No analysis text returned.";
+        summaryText.textContent = [styleSummary, `Negative prompt: ${negativePrompt}`].filter(Boolean).join("\n");
       } catch (error) {
         sessionState.textContent = "ERROR";
         setError(error.message);
@@ -338,9 +378,9 @@
     function buildPrompt() {
       const preset = PRESETS[activePreset];
       const extra = promptInput.value.trim();
+      const basePrompt = extra || preset.prompt;
       const parts = [
-        preset.prompt,
-        extra,
+        basePrompt,
         `Camera: ${cameraSelect.value}.`,
         `Time of day: ${timeSelect.value}.`,
         `Weather: ${weatherSelect.value}.`,
@@ -389,6 +429,21 @@
         throw new Error(translateError(JSON.stringify(data)));
       }
       return data;
+    }
+
+    async function imageUrlToDataUrl(url) {
+      try {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        return await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+      } catch (error) {
+        return "";
+      }
     }
 
     function extractText(response) {
