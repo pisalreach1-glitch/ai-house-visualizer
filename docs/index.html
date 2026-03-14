@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI House Visualizer Public</title>
+  <style>
+    :root {
+      --bg: #0b0d12;
+      --panel: #12161d;
+      --border: #252c38;
+      --text: #eef2f7;
+      --muted: #94a0b1;
+      --accent: #42d6c7;
+      --accent-2: #4d95ff;
+      --warning: #f1c27d;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: "Segoe UI", sans-serif; background: var(--bg); color: var(--text); }
+    .app { max-width: 1440px; margin: 0 auto; padding: 18px; }
+    .header, .panel, .preview-card { background: var(--panel); border: 1px solid var(--border); border-radius: 24px; }
+    .header { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:18px 22px; margin-bottom:16px; }
+    .title-wrap { display:flex; align-items:center; gap:14px; }
+    .logo { width:44px; height:44px; border-radius:14px; display:grid; place-items:center; font-weight:700; font-size:22px; background:linear-gradient(135deg,#e36579,#5b76ff); }
+    .status-pill { padding:10px 14px; border-radius:12px; border:1px solid #2f8e85; background:rgba(66,214,199,.12); color:#9ff3ea; font-size:12px; font-weight:700; }
+    .layout { display:grid; grid-template-columns:340px 1fr 340px; gap:18px; }
+    .panel, .preview-card { padding:20px; }
+    h1,h2,h3,p { margin:0; }
+    .section-title { margin-bottom:14px; }
+    .section-title h2 { font-size:20px; margin-bottom:4px; }
+    .section-title p,.muted { color:var(--muted); font-size:11px; }
+    .label { font-size:13px; font-weight:700; margin:14px 0 8px; }
+    .hint { color:var(--warning); font-size:10px; line-height:1.5; margin-top:8px; }
+    input,textarea,select,button { width:100%; border-radius:14px; border:1px solid #303847; background:#171b22; color:var(--text); padding:12px 14px; font:inherit; }
+    textarea { min-height:96px; resize:vertical; }
+    button { cursor:pointer; font-weight:700; }
+    .primary { border:none; color:#081315; background:linear-gradient(90deg,var(--accent),var(--accent-2)); }
+    .button-row { display:flex; gap:10px; }
+    .presets { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .preset { border:1px solid #2c313c; background:#13161c; border-radius:18px; padding:12px; cursor:pointer; }
+    .preset.active { border-color:var(--accent); background:#16191f; }
+    .preset-swatch { height:72px; border-radius:12px; margin-bottom:8px; background:linear-gradient(135deg,#4b5563,#1f2937); }
+    .preview-card { display:flex; flex-direction:column; gap:14px; min-height:780px; }
+    .preview-area { flex:1; border:1px dashed #344051; border-radius:24px; background:#10141b; display:grid; place-items:center; overflow:hidden; min-height:420px; }
+    .preview-area img { max-width:100%; max-height:100%; display:none; }
+    .preview-placeholder { text-align:center; color:var(--muted); padding:24px; }
+    .summary-box { border:1px solid #1f2631; background:#10141b; border-radius:18px; padding:16px; line-height:1.5; }
+    .history { display:flex; gap:10px; overflow-x:auto; padding-bottom:4px; }
+    .history-item { min-width:150px; border:1px solid #2c3340; border-radius:16px; background:#151a22; padding:8px; cursor:pointer; }
+    .history-item img { width:100%; height:78px; object-fit:cover; border-radius:10px; display:block; margin-bottom:8px; }
+    .note-box { border:1px solid #2a323e; border-radius:18px; padding:14px; background:#151a22; margin-top:14px; }
+    @media (max-width:1100px){ .layout{grid-template-columns:1fr;} .preview-card{min-height:auto;} }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="header">
+      <div class="title-wrap">
+        <div class="logo">S</div>
+        <div>
+          <h1>AI House Visualizer Public</h1>
+          <p class="muted">Static GitHub Pages version with user-owned Gemini API keys</p>
+        </div>
+      </div>
+      <div class="status-pill" id="sessionState">READY</div>
+    </div>
+
+    <div class="layout">
+      <div class="panel">
+        <div class="section-title">
+          <h2>Project Controls</h2>
+          <p>Upload image, choose preset, then analyze or generate.</p>
+        </div>
+
+        <div class="label">Image</div>
+        <input type="file" id="imageInput" accept="image/*">
+
+        <div class="label">Preset</div>
+        <div class="presets" id="presetGrid"></div>
+
+        <div class="label">Instructions</div>
+        <textarea id="promptInput" placeholder="Describe facade style, materials, mood, landscaping or render goals..."></textarea>
+
+        <div class="button-row" style="margin-top:12px;">
+          <button id="analyzeBtn">Analyze Style</button>
+          <button id="testBtn">Test API Key</button>
+        </div>
+
+        <div class="button-row" style="margin-top:10px;">
+          <button class="primary" id="generateBtn">Render Visual</button>
+        </div>
+      </div>
+
+      <div class="preview-card">
+        <div>
+          <h2 style="margin-bottom:4px;">Preview Workspace</h2>
+          <p class="muted">Text/analyze can use free tier. Image generation may need image-model access or billing.</p>
+        </div>
+        <div class="preview-area">
+          <div class="preview-placeholder" id="previewPlaceholder">
+            <h3>Upload an image to start</h3>
+            <p>Choose a house image and generate directly from the browser.</p>
+          </div>
+          <img id="previewImage" alt="Preview">
+        </div>
+        <div class="button-row">
+          <button id="showOriginalBtn">Show Original</button>
+          <button id="showGeneratedBtn">Show Generated</button>
+          <button id="saveBtn">Save Result</button>
+        </div>
+        <div class="summary-box">
+          <div id="statusText">New session started. Text analyze can use free tier; image generate depends on image-model access.</div>
+          <div id="summaryText" class="muted" style="margin-top:8px;">Analyze uses gemini-2.5-flash. Image generation uses gemini-2.5-flash-image.</div>
+        </div>
+        <div>
+          <h3 style="margin-bottom:10px;">Result History</h3>
+          <div class="history" id="historyList"></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="section-title">
+          <h2>Gemini API</h2>
+          <p>Each user enters their own key. Nothing is stored on GitHub Pages.</p>
+        </div>
+        <div class="label">Gemini API Key</div>
+        <input type="password" id="apiKeyInput" placeholder="Enter GEMINI_API_KEY">
+        <div class="label">Image Model</div>
+        <input type="text" id="imageModelInput" value="gemini-2.5-flash-image" readonly>
+        <div class="label">Text Model</div>
+        <input type="text" id="textModelInput" value="gemini-2.5-flash" readonly>
+        <div class="hint">
+          Text/chat/analyze uses gemini-2.5-flash and can work on free tier.<br>
+          Image generation uses gemini-2.5-flash-image and may require image-model access or billing.
+        </div>
+        <div class="note-box">
+          <strong>Scene Settings</strong>
+          <div class="label">Camera</div>
+          <select id="cameraSelect"><option>Default</option><option>Wide Camera</option></select>
+          <div class="label">Time Of Day</div>
+          <select id="timeSelect"><option>Default</option><option>Morning</option><option>Late Afternoon</option><option>Evening</option></select>
+          <div class="label">Weather</div>
+          <select id="weatherSelect"><option>Clear Skies</option><option>Partly Cloudy</option><option>Overcast</option><option>Light Rain</option></select>
+          <div class="label">Render Style</div>
+          <select id="renderStyleSelect"><option>Photo</option><option>3D Render</option></select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const PRESETS = {
+      "late-afternoon-luxury": {
+        title: "Late Afternoon Luxury",
+        prompt: "modern luxury villa facade, late afternoon sun, balanced greenery, premium driveway, soft warm sky, elegant front elevation"
+      },
+      "modern-tropical": {
+        title: "Modern Tropical",
+        prompt: "modern tropical house exterior, warm wood details, clean landscape, soft golden light, luxury residential presentation"
+      },
+      "minimal-gray": {
+        title: "Minimal Gray",
+        prompt: "minimal gray luxury home, large windows, clean facade, calm landscape, elegant modern exterior, premium architecture"
+      },
+      "soft-morning": {
+        title: "Soft Morning",
+        prompt: "clean luxury home exterior, soft morning light, fresh landscape, gentle blue sky, photo-real facade, refined residential style"
+      }
+    };
+
+    const IMAGE_MODEL = "gemini-2.5-flash-image";
+    const TEXT_MODEL = "gemini-2.5-flash";
+
+    const presetGrid = document.getElementById("presetGrid");
+    const previewImage = document.getElementById("previewImage");
+    const previewPlaceholder = document.getElementById("previewPlaceholder");
+    const historyList = document.getElementById("historyList");
+    const sessionState = document.getElementById("sessionState");
+    const statusText = document.getElementById("statusText");
+    const summaryText = document.getElementById("summaryText");
+    const imageInput = document.getElementById("imageInput");
+    const apiKeyInput = document.getElementById("apiKeyInput");
+    const promptInput = document.getElementById("promptInput");
+    const cameraSelect = document.getElementById("cameraSelect");
+    const timeSelect = document.getElementById("timeSelect");
+    const weatherSelect = document.getElementById("weatherSelect");
+    const renderStyleSelect = document.getElementById("renderStyleSelect");
+
+    let activePreset = "late-afternoon-luxury";
+    let sourceImageDataUrl = "";
+    let generatedImageDataUrl = "";
+
+    Object.entries(PRESETS).forEach(([key, preset], index) => {
+      const card = document.createElement("div");
+      card.className = `preset ${index === 0 ? "active" : ""}`;
+      card.dataset.preset = key;
+      card.innerHTML = `
+        <div class="preset-swatch"></div>
+        <strong>${preset.title}</strong>
+        <div class="muted">${preset.prompt}</div>
+      `;
+      card.addEventListener("click", () => {
+        document.querySelectorAll(".preset").forEach(item => item.classList.remove("active"));
+        card.classList.add("active");
+        activePreset = key;
+      });
+      presetGrid.appendChild(card);
+    });
+
+    imageInput.addEventListener("change", async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      sourceImageDataUrl = await fileToDataUrl(file);
+      showImage(sourceImageDataUrl);
+      sessionState.textContent = "IMAGE LOADED";
+      statusText.textContent = "Image loaded successfully. You can analyze or generate now.";
+      summaryText.textContent = `Source: ${file.name}`;
+    });
+
+    document.getElementById("testBtn").addEventListener("click", async () => {
+      const apiKey = apiKeyInput.value.trim();
+      if (!apiKey) return setError("សូមបញ្ចូល Gemini API key មុនពេល test។");
+      sessionState.textContent = "TESTING";
+      try {
+        const text = await callTextModel(apiKey, TEXT_MODEL, "Reply with the exact text: API test successful.");
+        sessionState.textContent = "API OK";
+        statusText.textContent = "Gemini API key is working for text model.";
+        summaryText.textContent = text || "API test successful.";
+      } catch (error) {
+        sessionState.textContent = "ERROR";
+        setError(error.message);
+      }
+    });
+
+    document.getElementById("analyzeBtn").addEventListener("click", async () => {
+      const apiKey = apiKeyInput.value.trim();
+      if (!apiKey) return setError("សូមបញ្ចូល Gemini API key មុនពេល analyze។");
+      sessionState.textContent = "WORKING";
+      try {
+        const analysisPrompt = "You are an architectural visualization assistant. Analyze this request and respond in 4 short lines: 1. facade style, 2. lighting advice, 3. landscaping advice, 4. render recommendation. User request: " + buildPrompt();
+        const text = await callTextModel(apiKey, TEXT_MODEL, analysisPrompt);
+        sessionState.textContent = "TEXT OK";
+        statusText.textContent = "Text analysis complete using gemini-2.5-flash.";
+        summaryText.textContent = text || "No analysis text returned.";
+      } catch (error) {
+        sessionState.textContent = "ERROR";
+        setError(error.message);
+      }
+    });
+
+    document.getElementById("generateBtn").addEventListener("click", async () => {
+      const apiKey = apiKeyInput.value.trim();
+      if (!apiKey) return setError("សូមបញ្ចូល Gemini API key មុនពេល generate។");
+      sessionState.textContent = "WORKING";
+      statusText.textContent = "Generating image...";
+      try {
+        const response = await callImageModel(apiKey);
+        generatedImageDataUrl = response.imageDataUrl;
+        showImage(generatedImageDataUrl);
+        addHistoryItem(generatedImageDataUrl, `Generated ${historyList.children.length + 1}`);
+        sessionState.textContent = "GENERATED";
+        statusText.textContent = "Gemini image generation complete.";
+        summaryText.textContent = response.text || "Image generated successfully.";
+      } catch (error) {
+        sessionState.textContent = "ERROR";
+        setError(error.message + " Text features may still work on free tier with gemini-2.5-flash.");
+      }
+    });
+
+    document.getElementById("showOriginalBtn").addEventListener("click", () => {
+      if (!sourceImageDataUrl) return setError("No original image is loaded.");
+      showImage(sourceImageDataUrl);
+      statusText.textContent = "Showing original source image.";
+    });
+
+    document.getElementById("showGeneratedBtn").addEventListener("click", () => {
+      if (!generatedImageDataUrl) return setError("No generated result is available yet.");
+      showImage(generatedImageDataUrl);
+      statusText.textContent = "Showing latest generated image.";
+    });
+
+    document.getElementById("saveBtn").addEventListener("click", () => {
+      if (!generatedImageDataUrl) return setError("No generated image available to save.");
+      const link = document.createElement("a");
+      link.href = generatedImageDataUrl;
+      link.download = "generated_visual.png";
+      link.click();
+    });
+
+    function buildPrompt() {
+      const preset = PRESETS[activePreset];
+      const extra = promptInput.value.trim();
+      const parts = [
+        preset.prompt,
+        extra,
+        `Camera: ${cameraSelect.value}.`,
+        `Time of day: ${timeSelect.value}.`,
+        `Weather: ${weatherSelect.value}.`,
+        `Style target: ${renderStyleSelect.value}, realistic architectural visualization, high-end residential facade, photoreal result.`
+      ];
+      return parts.filter(Boolean).join(" ");
+    }
+
+    async function callTextModel(apiKey, model, prompt) {
+      const response = await postGemini(model, apiKey, {
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        generationConfig: { responseModalities: ["TEXT"] }
+      });
+      return extractText(response);
+    }
+
+    async function callImageModel(apiKey) {
+      const parts = [{ text: buildPrompt() }];
+      if (sourceImageDataUrl) {
+        const [header, encoded] = sourceImageDataUrl.split(",", 2);
+        const mimeType = header.replace("data:", "").split(";")[0] || "image/jpeg";
+        parts.push({ inlineData: { mimeType, data: encoded } });
+      }
+      const response = await postGemini(IMAGE_MODEL, apiKey, {
+        contents: [{ role: "user", parts }],
+        generationConfig: { responseModalities: ["TEXT", "IMAGE"] }
+      });
+      const imageDataUrl = extractImage(response);
+      if (!imageDataUrl) {
+        throw new Error("Gemini API did not return an image. Check image-model access or billing.");
+      }
+      return { imageDataUrl, text: extractText(response) };
+    }
+
+    async function postGemini(model, apiKey, payload) {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-goog-api-key": apiKey
+        },
+        body: JSON.stringify(payload)
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(translateError(JSON.stringify(data)));
+      }
+      return data;
+    }
+
+    function extractText(response) {
+      const texts = [];
+      (response.candidates || []).forEach(candidate => {
+        ((candidate.content || {}).parts || []).forEach(part => {
+          if (part.text) texts.push(part.text.trim());
+        });
+      });
+      return texts.filter(Boolean).join("\n");
+    }
+
+    function extractImage(response) {
+      for (const candidate of response.candidates || []) {
+        for (const part of (candidate.content || {}).parts || []) {
+          const inlineData = part.inlineData || part.inline_data;
+          if (inlineData && inlineData.data) {
+            return `data:${inlineData.mimeType || "image/png"};base64,${inlineData.data}`;
+          }
+        }
+      }
+      return "";
+    }
+
+    function translateError(message) {
+      const lowered = message.toLowerCase();
+      if (lowered.includes("limit: 0") || lowered.includes("resource_exhausted")) {
+        return "Quota របស់ project នេះសម្រាប់ model នេះមិនអនុញ្ញាត free tier ទេ ឬបានអស់ហើយ។ សូមប្ដូរ model, ប្ដូរ project, ឬបើក billing។";
+      }
+      if (lowered.includes("exceeded your current quota") || lowered.includes("quota exceeded")) {
+        return "អ្នកបានអស់ quota សម្រាប់ project នេះហើយ។ សូមរង់ចាំ quota reset ឬបើក billing។";
+      }
+      if (lowered.includes("api key not valid") || lowered.includes("permission_denied")) {
+        return "API key មិនត្រឹមត្រូវ ឬ project/model នេះមិនមានសិទ្ធិចូលប្រើ។";
+      }
+      if (lowered.includes("model not found") || lowered.includes("not found")) {
+        return "Model name មិនត្រឹមត្រូវ ឬ model នេះមិនមានសម្រាប់ account/project របស់អ្នក។";
+      }
+      return message;
+    }
+
+    function setError(message) {
+      statusText.textContent = message;
+      summaryText.textContent = "";
+    }
+
+    function showImage(dataUrl) {
+      previewImage.src = dataUrl;
+      previewImage.style.display = "block";
+      previewPlaceholder.style.display = "none";
+    }
+
+    function addHistoryItem(dataUrl, label) {
+      const item = document.createElement("div");
+      item.className = "history-item";
+      item.innerHTML = `<img src="${dataUrl}" alt="${label}"><div>${label}</div>`;
+      item.addEventListener("click", () => showImage(dataUrl));
+      historyList.prepend(item);
+    }
+
+    function fileToDataUrl(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+  </script>
+</body>
+</html>
