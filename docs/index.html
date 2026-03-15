@@ -17,6 +17,7 @@
     }
     * { box-sizing: border-box; }
     body { margin: 0; font-family: "Segoe UI", sans-serif; background: var(--bg); color: var(--text); }
+    body.authenticated .auth-overlay { display: none; }
     .app { max-width: 1440px; margin: 0 auto; padding: 18px; }
     .header, .panel, .preview-card { background: var(--panel); border: 1px solid var(--border); border-radius: 24px; }
     .header { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:18px 22px; margin-bottom:16px; }
@@ -73,10 +74,41 @@
     .history-item { min-width:150px; border:1px solid #2c3340; border-radius:16px; background:#151a22; padding:8px; cursor:pointer; }
     .history-item img { width:100%; height:78px; object-fit:cover; border-radius:10px; display:block; margin-bottom:8px; }
     .note-box { border:1px solid #2a323e; border-radius:18px; padding:14px; background:#151a22; margin-top:14px; }
+    .account-card { border:1px solid #2a323e; border-radius:18px; padding:14px; background:#151a22; margin-bottom:14px; }
+    .account-card.hidden { display:none; }
+    .account-row { display:flex; align-items:center; gap:12px; }
+    .account-avatar { width:44px; height:44px; border-radius:50%; object-fit:cover; background:#0f141c; border:1px solid #323c4b; }
+    .account-meta { flex:1; min-width:0; }
+    .account-name { font-size:14px; font-weight:700; }
+    .account-email { color:var(--muted); font-size:12px; overflow:hidden; text-overflow:ellipsis; }
+    .auth-overlay { position:fixed; inset:0; background:rgba(6,9,14,.76); display:flex; align-items:center; justify-content:center; padding:24px; z-index:30; backdrop-filter:blur(8px); }
+    .auth-card { width:min(100%, 500px); padding:32px 28px; background:#17191f; border:1px solid #2b3342; border-radius:28px; box-shadow:0 24px 60px rgba(0,0,0,.35); text-align:center; }
+    .auth-mark { width:64px; height:64px; margin:0 auto 18px; border-radius:18px; display:grid; place-items:center; font-size:30px; font-weight:800; color:#8fc4ff; border:1px solid rgba(77,149,255,.45); background:rgba(77,149,255,.08); }
+    .auth-subtitle { color:var(--muted); max-width:390px; margin:10px auto 24px; line-height:1.6; }
+    .manual-auth { margin-top:16px; text-align:left; }
+    .manual-auth label { display:block; font-size:13px; font-weight:700; margin-bottom:8px; color:#dce4ef; }
+    .auth-link { margin-top:16px; color:var(--muted); }
+    .auth-link a { color:var(--accent-2); text-decoration:none; }
+    .auth-error { min-height:20px; margin-top:12px; color:#ff9f9f; font-size:13px; }
     @media (max-width:1100px){ .layout{grid-template-columns:1fr;} .preview-card{min-height:auto;} }
   </style>
 </head>
 <body>
+  <div class="auth-overlay" id="authOverlay">
+    <div class="auth-card">
+      <div class="auth-mark">A</div>
+      <h2 style="font-size:32px; margin-bottom:0;">Sign in to continue</h2>
+      <p class="auth-subtitle">Keep the same old UI, but require a simple email login first so each user can keep a separate Gemini API key in this browser.</p>
+      <div class="manual-auth">
+        <label for="manualEmailInput">Email</label>
+        <input type="email" id="manualEmailInput" placeholder="yourname@gmail.com">
+        <button class="primary" id="manualLoginBtn" type="button" style="margin-top:12px;">Continue with Email</button>
+      </div>
+      <div class="auth-link">Already connected before? <a href="#" id="restoreSessionLink">Restore saved session</a></div>
+      <div class="auth-error" id="authError"></div>
+    </div>
+  </div>
+
   <div class="app">
     <div class="header">
       <div class="title-wrap">
@@ -160,8 +192,19 @@
           <h2>Gemini API</h2>
           <p>Each user enters their own key. Nothing is stored on GitHub Pages.</p>
         </div>
+        <div class="account-card hidden" id="accountCard">
+          <div class="account-row">
+            <img class="account-avatar" id="accountAvatar" alt="Account avatar">
+            <div class="account-meta">
+              <div class="account-name" id="accountName">Guest</div>
+              <div class="account-email" id="accountEmail">No account connected</div>
+            </div>
+          </div>
+          <button id="signOutBtn" style="margin-top:12px;">Sign out</button>
+        </div>
         <div class="label">Gemini API Key</div>
         <input type="password" id="apiKeyInput" placeholder="Enter GEMINI_API_KEY">
+        <div class="muted" id="apiKeyHint" style="margin-top:8px;">Sign in first. The key will be remembered per email in this browser only.</div>
         <div class="label">Image Model</div>
         <input type="text" id="imageModelInput" value="gemini-2.5-flash-image" readonly>
         <div class="label">Text Model</div>
@@ -256,6 +299,16 @@
     const timeSelect = document.getElementById("timeSelect");
     const weatherSelect = document.getElementById("weatherSelect");
     const renderStyleSelect = document.getElementById("renderStyleSelect");
+    const authError = document.getElementById("authError");
+    const manualEmailInput = document.getElementById("manualEmailInput");
+    const manualLoginBtn = document.getElementById("manualLoginBtn");
+    const restoreSessionLink = document.getElementById("restoreSessionLink");
+    const accountCard = document.getElementById("accountCard");
+    const accountAvatar = document.getElementById("accountAvatar");
+    const accountName = document.getElementById("accountName");
+    const accountEmail = document.getElementById("accountEmail");
+    const signOutBtn = document.getElementById("signOutBtn");
+    const apiKeyHint = document.getElementById("apiKeyHint");
 
     let activePreset = "brick-roof-loft";
     let sourceImageDataUrl = "";
@@ -263,6 +316,16 @@
     let generatedImageDataUrl = "";
     let latestRefinedPrompt = "";
     let latestNegativePrompt = "text, watermark, logo, signage, blurry facade, distorted proportions";
+    let activeUser = null;
+
+    const STORAGE_KEYS = {
+      user: "ai-house-active-user",
+      profilePrefix: "ai-house-profile:",
+      keyPrefix: "ai-house-gemini-key:"
+    };
+
+    setAuthLockedState(true);
+    restoreSession();
 
     Object.entries(PRESETS).forEach(([key, preset], index) => {
       const card = document.createElement("div");
@@ -286,6 +349,37 @@
 
     promptInput.value = PRESETS[activePreset].prompt;
     updateSummary();
+
+    manualLoginBtn.addEventListener("click", () => {
+      const email = manualEmailInput.value.trim().toLowerCase();
+      if (!email || !email.includes("@")) {
+        authError.textContent = "Enter a valid email address first.";
+        return;
+      }
+      completeSignIn({ name: email.split("@")[0], email, picture: "" });
+    });
+
+    restoreSessionLink.addEventListener("click", (event) => {
+      event.preventDefault();
+      restoreSession(true);
+    });
+
+    signOutBtn.addEventListener("click", () => {
+      localStorage.removeItem(STORAGE_KEYS.user);
+      activeUser = null;
+      apiKeyInput.value = "";
+      renderAccount();
+      setAuthLockedState(true);
+      document.body.classList.remove("authenticated");
+      authError.textContent = "Signed out. Sign in again to continue.";
+      sessionState.textContent = "SIGN IN";
+      statusText.textContent = "Sign in first before using Gemini.";
+    });
+
+    apiKeyInput.addEventListener("input", () => {
+      if (!activeUser?.email) return;
+      localStorage.setItem(`${STORAGE_KEYS.keyPrefix}${activeUser.email}`, apiKeyInput.value);
+    });
 
     imageInput.addEventListener("change", async (event) => {
       const file = event.target.files[0];
@@ -323,6 +417,7 @@
     });
 
     document.getElementById("testBtn").addEventListener("click", async () => {
+      if (!ensureSignedIn()) return;
       const apiKey = apiKeyInput.value.trim();
       if (!apiKey) return setError("សូមបញ្ចូល Gemini API key មុនពេល test។");
       sessionState.textContent = "TESTING";
@@ -338,6 +433,7 @@
     });
 
     document.getElementById("analyzeBtn").addEventListener("click", async () => {
+      if (!ensureSignedIn()) return;
       const apiKey = apiKeyInput.value.trim();
       if (!apiKey) return setError("សូមបញ្ចូល Gemini API key មុនពេល analyze។");
       sessionState.textContent = "WORKING";
@@ -390,6 +486,7 @@
     });
 
     document.getElementById("generateBtn").addEventListener("click", async () => {
+      if (!ensureSignedIn()) return;
       const apiKey = apiKeyInput.value.trim();
       if (!apiKey) return setError("សូមបញ្ចូល Gemini API key មុនពេល generate។");
       sessionState.textContent = "WORKING";
@@ -573,6 +670,77 @@
     function setError(message) {
       statusText.textContent = message;
       summaryText.textContent = "";
+    }
+
+    function completeSignIn(profile) {
+      activeUser = profile;
+      localStorage.setItem(STORAGE_KEYS.user, activeUser.email);
+      localStorage.setItem(`${STORAGE_KEYS.profilePrefix}${activeUser.email}`, JSON.stringify(activeUser));
+      authError.textContent = "";
+      manualEmailInput.value = activeUser.email;
+      renderAccount();
+      setAuthLockedState(false);
+      document.body.classList.add("authenticated");
+      sessionState.textContent = "READY";
+      statusText.textContent = `Signed in as ${activeUser.email}. Enter or confirm your Gemini API key to continue.`;
+      summaryText.textContent = "Each signed-in email keeps its own Gemini API key in this browser only.";
+    }
+
+    function restoreSession(showError = false) {
+      const email = localStorage.getItem(STORAGE_KEYS.user);
+      if (!email) {
+        renderAccount();
+        return;
+      }
+      try {
+        const profile = JSON.parse(localStorage.getItem(`${STORAGE_KEYS.profilePrefix}${email}`) || "null");
+        if (!profile?.email) throw new Error("Saved session is incomplete.");
+        activeUser = profile;
+        manualEmailInput.value = activeUser.email;
+        renderAccount();
+        setAuthLockedState(false);
+        document.body.classList.add("authenticated");
+        sessionState.textContent = "READY";
+        statusText.textContent = `Restored session for ${activeUser.email}.`;
+      } catch (error) {
+        localStorage.removeItem(STORAGE_KEYS.user);
+        renderAccount();
+        if (showError) authError.textContent = "Saved session could not be restored. Please sign in again.";
+      }
+    }
+
+    function renderAccount() {
+      if (!activeUser?.email) {
+        accountCard.classList.add("hidden");
+        accountName.textContent = "Guest";
+        accountEmail.textContent = "No account connected";
+        accountAvatar.removeAttribute("src");
+        apiKeyHint.textContent = "Sign in first. The key will be remembered per email in this browser only.";
+        return;
+      }
+      accountCard.classList.remove("hidden");
+      accountName.textContent = activeUser.name || activeUser.email;
+      accountEmail.textContent = activeUser.email;
+      if (activeUser.picture) accountAvatar.src = activeUser.picture;
+      else accountAvatar.removeAttribute("src");
+      apiKeyInput.value = localStorage.getItem(`${STORAGE_KEYS.keyPrefix}${activeUser.email}`) || "";
+      apiKeyHint.textContent = `API key for ${activeUser.email} stays only in this browser and is never stored anywhere else.`;
+    }
+
+    function setAuthLockedState(locked) {
+      document.querySelectorAll("#analyzeBtn, #testBtn, #generateBtn").forEach(button => {
+        button.disabled = locked;
+      });
+      apiKeyInput.disabled = locked;
+    }
+
+    function ensureSignedIn() {
+      if (activeUser?.email) return true;
+      document.body.classList.remove("authenticated");
+      sessionState.textContent = "SIGN IN";
+      statusText.textContent = "Sign in first before using Gemini.";
+      summaryText.textContent = "";
+      return false;
     }
 
     function showImage(dataUrl) {
