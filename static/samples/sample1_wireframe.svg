@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800">
+  <defs>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#334155" stroke-width="0.5" stroke-opacity="0.4"/>
+    </pattern>
+  </defs>
+  <!-- Background sketchup workspace -->
+  <rect width="1200" height="800" fill="#0f172a"/>
+  <rect width="1200" height="800" fill="url(#grid)"/>
+  
+  <!-- Sketchup axes -->
+  <line x1="600" y1="450" x2="1150" y2="520" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="4,4"/>
+  <line x1="600" y1="450" x2="100" y2="580" stroke="#22c55e" stroke-width="1.5" stroke-dasharray="4,4"/>
+  <line x1="600" y1="450" x2="600" y2="50" stroke="#3b82f6" stroke-width="1.5"/>
+
+  <!-- Watermark -->
+  <text x="30" y="50" fill="#64748b" font-family="monospace" font-size="16">SketchUp Pro 2026 Viewport [Hidden-Line Wireframe Mode]</text>
+  <text x="30" y="75" fill="#475569" font-family="monospace" font-size="13">Project: Modern Tropical Villa (Phnom Penh) | Layer: Exterior_Shell</text>
+
+  <!-- Ground Plane / Deck -->
+  <polygon points="200,600 650,470 1050,560 550,730" fill="#1e293b" fill-opacity="0.6" stroke="#94a3b8" stroke-width="2"/>
+  
+  <!-- Swimming pool wireframe -->
+  <polygon points="320,630 520,570 700,615 480,685" fill="#0284c7" fill-opacity="0.2" stroke="#38bdf8" stroke-width="1.5"/>
+
+  <!-- Main Villa 2-Story Volume -->
+  <!-- Ground Floor -->
+  <polygon points="450,530 850,450 850,330 450,410" fill="#334155" fill-opacity="0.3" stroke="#cbd5e1" stroke-width="2"/>
+  <polygon points="450,410 850,330 980,360 580,440" fill="#1e293b" fill-opacity="0.5" stroke="#cbd5e1" stroke-width="2"/>
+  <polygon points="850,450 980,480 980,360 850,330" fill="#1e293b" fill-opacity="0.4" stroke="#cbd5e1" stroke-width="2"/>
+
+  <!-- Glass Curtain Wall Wireframe Lines -->
+  <line x1="520" y1="416" x2="520" y2="516" stroke="#93c5fd" stroke-width="1.2"/>
+  <line x1="590" y1="402" x2="590" y2="502" stroke="#93c5fd" stroke-width="1.2"/>
+  <line x1="660" y1="388" x2="660" y2="488" stroke="#93c5fd" stroke-width="1.2"/>
+  <line x1="730" y1="374" x2="730" y2="474" stroke="#93c5fd" stroke-width="1.2"/>
+
+  <!-- Upper Cantilevered Floor (Floating Master Suite) -->
+  <polygon points="380,360 820,280 820,160 380,240" fill="#475569" fill-opacity="0.4" stroke="#f8fafc" stroke-width="2.5"/>
+  <polygon points="380,240 820,160 920,185 480,265" fill="#334155" fill-opacity="0.6" stroke="#f8fafc" stroke-width="2.5"/>
+  <polygon points="820,280 920,305 920,185 820,160" fill="#334155" fill-opacity="0.5" stroke="#f8fafc" stroke-width="2.5"/>
+
+  <!-- Wood Louver / Slat System (Facade) -->
+  <line x1="430" y1="230" x2="430" y2="350" stroke="#f59e0b" stroke-width="1.5"/>
+  <line x1="450" y1="226" x2="450" y2="346" stroke="#f59e0b" stroke-width="1.5"/>
+  <line x1="470" y1="222" x2="470" y2="342" stroke="#f59e0b" stroke-width="1.5"/>
+  <line x1="490" y1="218" x2="490" y2="338" stroke="#f59e0b" stroke-width="1.5"/>
+  <line x1="510" y1="214" x2="510" y2="334" stroke="#f59e0b" stroke-width="1.5"/>
+
+  <!-- Overhang Roof Profile -->
+  <polygon points="340,240 860,140 960,165 440,265" fill="none" stroke="#38bdf8" stroke-width="2"/>
+
+  <!-- Landscape Trees Wireframe -->
+  <circle cx="280" cy="500" r="70" fill="none" stroke="#4ade80" stroke-width="1.5" stroke-dasharray="3,3"/>
+  <line x1="280" y1="570" x2="280" y2="620" stroke="#4ade80" stroke-width="2"/>
+  <circle cx="1000" cy="400" r="90" fill="none" stroke="#4ade80" stroke-width="1.5" stroke-dasharray="3,3"/>
+  <line x1="1000" y1="490" x2="1000" y2="580" stroke="#4ade80" stroke-width="2"/>
+</svg>

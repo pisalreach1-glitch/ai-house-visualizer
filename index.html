@@ -1,0 +1,2004 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SAL AI STUDIO V2 - Architectural AI Studio</title>
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Kantumruy+Pro:wght@300;400;500;600;700&family=Urbanist:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-base: #060913;
+      --bg-panel: rgba(12, 17, 32, 0.88);
+      --bg-card: #0f172a;
+      --bg-card-hover: #17233d;
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-glow: rgba(16, 185, 129, 0.4);
+      --accent: #10b981;
+      --accent-hover: #059669;
+      --accent-cyan: #06b6d4;
+      --accent-glow: rgba(16, 185, 129, 0.25);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --font-ui: 'Urbanist', -apple-system, sans-serif;
+      --font-kh: 'Kantumruy Pro', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      font-family: var(--font-kh), var(--font-ui);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+    }
+
+    /* Scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.14);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--accent);
+    }
+
+    /* Ambient Background Glow */
+    .ambient-glow {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 0;
+      background: 
+        radial-gradient(circle at 10% 20%, rgba(16, 185, 129, 0.05) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(6, 182, 212, 0.04) 0%, transparent 45%);
+    }
+
+    /* Header */
+    header {
+      height: 60px;
+      background: rgba(8, 12, 24, 0.95);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      z-index: 40;
+      flex-shrink: 0;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: inherit;
+      cursor: pointer;
+    }
+
+    .logo-badge {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #10b981, #06b6d4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 16px rgba(16, 185, 129, 0.5);
+    }
+
+    .logo-badge svg {
+      width: 22px;
+      height: 22px;
+      fill: #060913;
+    }
+
+    .brand-title {
+      font-family: var(--font-ui);
+      font-weight: 800;
+      font-size: 1.15rem;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .brand-title span {
+      background: linear-gradient(to right, #10b981, #06b6d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .version-tag {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .mode-pills {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(255, 255, 255, 0.04);
+      padding: 3px;
+      border-radius: 8px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .mode-pill {
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      background: transparent;
+    }
+
+    .mode-pill.active {
+      background: var(--bg-card);
+      color: var(--text-main);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      font-size: 0.78rem;
+      color: #34d399;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .status-badge:hover {
+      background: rgba(16, 185, 129, 0.2);
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 8px #10b981;
+      animation: pulse-dot 2s infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.85); }
+    }
+
+    .credits-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
+      color: #fbbf24;
+      font-family: var(--font-mono);
+    }
+
+    .telegram-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 14px;
+      border-radius: 20px;
+      background: #0088cc;
+      color: #ffffff;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+      box-shadow: 0 0 10px rgba(0, 136, 204, 0.3);
+    }
+
+    .telegram-btn:hover {
+      background: #0099e6;
+      box-shadow: 0 0 14px rgba(0, 136, 204, 0.5);
+    }
+
+    .icon-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .icon-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-main);
+    }
+
+    /* Main Workspace Layout */
+    .app-workspace {
+      flex: 1;
+      display: flex;
+      height: calc(100vh - 60px);
+      overflow: hidden;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Left Control Dock */
+    .control-dock {
+      width: 360px;
+      background: var(--bg-panel);
+      backdrop-filter: blur(20px);
+      border-right: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      flex-shrink: 0;
+      padding: 16px;
+      gap: 16px;
+    }
+
+    .dock-section {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .section-title {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Upload Zone */
+    .upload-zone {
+      border: 2px dashed rgba(255, 255, 255, 0.12);
+      border-radius: 12px;
+      padding: 20px 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: rgba(255, 255, 255, 0.015);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .upload-zone:hover, .upload-zone.dragover {
+      border-color: var(--accent);
+      background: rgba(16, 185, 129, 0.04);
+    }
+
+    .upload-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(16, 185, 129, 0.12);
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .upload-text {
+      font-size: 0.85rem;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .upload-sub {
+      font-size: 0.72rem;
+      color: var(--text-dim);
+    }
+
+    .upload-preview-box {
+      display: none;
+      width: 100%;
+      height: 140px;
+      border-radius: 10px;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .upload-preview-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .preview-overlay-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(0, 0, 0, 0.75);
+      color: #ef4444;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 0.72rem;
+      cursor: pointer;
+    }
+
+    .sample-btn {
+      width: 100%;
+      padding: 7px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .sample-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-main);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Active Preset Card in Dock */
+    .active-preset-banner {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-glow);
+      border-radius: 10px;
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.15);
+    }
+
+    .preset-mini-img {
+      width: 50px;
+      height: 50px;
+      border-radius: 6px;
+      object-fit: cover;
+      border: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+    }
+
+    .preset-mini-info {
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .preset-mini-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .preset-mini-desc {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .browse-all-btn {
+      font-size: 0.72rem;
+      color: var(--accent);
+      cursor: pointer;
+      text-decoration: underline;
+      background: none;
+      border: none;
+      padding: 0;
+    }
+
+    /* Select Pills Grid */
+    .pills-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px;
+    }
+
+    .pills-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+
+    .select-pill {
+      padding: 7px 8px;
+      border-radius: 8px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.15s;
+      text-align: center;
+    }
+
+    .select-pill:hover {
+      background: var(--bg-card-hover);
+      color: var(--text-main);
+    }
+
+    .select-pill.active {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: var(--accent);
+      color: #34d399;
+      font-weight: 600;
+      box-shadow: 0 0 8px rgba(16, 185, 129, 0.2);
+    }
+
+    /* Prompt Textarea */
+    .prompt-box {
+      width: 100%;
+      height: 74px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 10px;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 0.8rem;
+      resize: none;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .prompt-box:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
+    }
+
+    .quick-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .quick-tag {
+      font-size: 0.7rem;
+      padding: 3px 7px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .quick-tag:hover {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    /* Glowing Render Action Button */
+    .render-btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #10b981, #06b6d4);
+      color: #060913;
+      font-family: var(--font-ui);
+      font-size: 0.95rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+      transition: all 0.25s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      position: relative;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+
+    .render-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 28px rgba(16, 185, 129, 0.65);
+    }
+
+    .render-btn:active {
+      transform: translateY(1px);
+    }
+
+    .render-btn:disabled {
+      background: #1e293b;
+      color: #64748b;
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
+
+    /* Central Main Stage */
+    .stage-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      background: radial-gradient(circle at center, rgba(15, 23, 42, 0.4) 0%, rgba(6, 9, 19, 0.95) 100%);
+      overflow: hidden;
+    }
+
+    .stage-canvas-container {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      padding: 24px;
+    }
+
+    /* Empty Canvas Placeholder */
+    .stage-empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      text-align: center;
+      border: 1px dashed rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 60px 40px;
+      max-width: 500px;
+      background: rgba(255, 255, 255, 0.01);
+    }
+
+    .empty-graphic {
+      width: 72px;
+      height: 72px;
+      border-radius: 20px;
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+    }
+
+    .empty-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .empty-subtitle {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Before / After Comparator */
+    .comparator-wrapper {
+      display: none;
+      position: relative;
+      width: 100%;
+      height: 100%;
+      max-width: 1200px;
+      max-height: 800px;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+      border: 1px solid var(--border-subtle);
+      user-select: none;
+      background: #000;
+    }
+
+    .comparator-img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      pointer-events: none;
+    }
+
+    .comparator-before {
+      z-index: 1;
+    }
+
+    .comparator-after-wrapper {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 50%;
+      height: 100%;
+      overflow: hidden;
+      z-index: 2;
+      border-right: 2px solid var(--accent);
+      box-shadow: 0 0 16px rgba(16, 185, 129, 0.5);
+    }
+
+    .comparator-after-wrapper .comparator-img {
+      width: 100%;
+      height: 100%;
+      max-width: none;
+    }
+
+    .comparator-handle {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 4px;
+      background: var(--accent);
+      z-index: 10;
+      cursor: ew-resize;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .handle-pill {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #060913;
+      border: 2px solid var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.6);
+      cursor: ew-resize;
+    }
+
+    .comparator-tag {
+      position: absolute;
+      bottom: 16px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: #fff;
+      z-index: 5;
+    }
+
+    .tag-before { left: 16px; }
+    .tag-after { right: 16px; }
+
+    /* Floating Toolbar on Canvas */
+    .stage-toolbar {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(8, 12, 24, 0.85);
+      backdrop-filter: blur(12px);
+      padding: 4px 8px;
+      border-radius: 10px;
+      border: 1px solid var(--border-subtle);
+      z-index: 30;
+    }
+
+    .tool-btn {
+      padding: 6px 10px;
+      border-radius: 6px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.15s;
+    }
+
+    .tool-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-main);
+    }
+
+    .tool-btn.primary {
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .tool-btn.primary:hover {
+      background: rgba(16, 185, 129, 0.35);
+    }
+
+    /* Right Presets Library Drawer */
+    .presets-drawer {
+      width: 380px;
+      background: var(--bg-panel);
+      backdrop-filter: blur(20px);
+      border-left: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .presets-header {
+      padding: 16px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .presets-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .presets-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .presets-count {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      padding: 2px 8px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-muted);
+    }
+
+    .search-box {
+      width: 100%;
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      font-size: 0.8rem;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .search-box:focus {
+      border-color: var(--accent);
+    }
+
+    .category-tabs {
+      display: flex;
+      gap: 4px;
+      overflow-x: auto;
+      padding: 0 16px 10px 16px;
+      border-bottom: 1px solid var(--border-subtle);
+      scrollbar-width: none;
+    }
+
+    .category-tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .cat-tab {
+      padding: 5px 10px;
+      border-radius: 6px;
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      font-size: 0.74rem;
+      font-weight: 500;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .cat-tab:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .cat-tab.active {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: rgba(16, 185, 129, 0.3);
+      color: #34d399;
+      font-weight: 600;
+    }
+
+    .presets-grid {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-auto-rows: max-content;
+      gap: 12px;
+      align-content: start;
+    }
+
+    .preset-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      height: 165px;
+      min-height: 165px;
+    }
+
+    .preset-card:hover {
+      border-color: rgba(16, 185, 129, 0.4);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+    }
+
+    .preset-card.active {
+      border-color: var(--accent);
+      box-shadow: 0 0 14px rgba(16, 185, 129, 0.35);
+    }
+
+    .preset-card-img-wrap {
+      width: 100%;
+      height: 105px;
+      min-height: 105px;
+      flex-shrink: 0;
+      background: #000;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .preset-card-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s;
+    }
+
+    .preset-card:hover .preset-card-img {
+      transform: scale(1.05);
+    }
+
+    .preset-card-badge {
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      font-size: 0.62rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      color: var(--text-muted);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .preset-card-check {
+      display: none;
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #060913;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 900;
+      box-shadow: 0 0 8px var(--accent);
+    }
+
+    .preset-card.active .preset-card-check {
+      display: flex;
+    }
+
+    .preset-card-body {
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .preset-card-title {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .preset-card-sub {
+      font-size: 0.68rem;
+      color: var(--text-dim);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Rendering Progress Laser Overlay */
+    .progress-overlay {
+      display: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(6, 9, 19, 0.88);
+      backdrop-filter: blur(16px);
+      z-index: 50;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .progress-scanner-box {
+      width: 320px;
+      height: 180px;
+      border-radius: 14px;
+      border: 1px solid var(--border-glow);
+      background: rgba(16, 185, 129, 0.04);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 0 30px rgba(16, 185, 129, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .scanner-line {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(to right, transparent, #10b981, #06b6d4, transparent);
+      box-shadow: 0 0 16px #10b981;
+      animation: scan 2s infinite ease-in-out;
+    }
+
+    @keyframes scan {
+      0% { top: 0%; opacity: 0.2; }
+      50% { top: 100%; opacity: 1; }
+      100% { top: 0%; opacity: 0.2; }
+    }
+
+    .progress-status-text {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .progress-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      width: 300px;
+    }
+
+    .step-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.78rem;
+      color: var(--text-dim);
+    }
+
+    .step-item.active {
+      color: #34d399;
+      font-weight: 600;
+    }
+
+    .step-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--text-dim);
+    }
+
+    .step-item.active .step-dot {
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent);
+    }
+
+    /* Modal Styles */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(10px);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-card {
+      width: 90%;
+      max-width: 540px;
+      background: #0d1322;
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1.2rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .form-input {
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      font-size: 0.85rem;
+      font-family: var(--font-mono);
+      outline: none;
+    }
+
+    .form-input:focus {
+      border-color: var(--accent);
+    }
+
+    .form-hint {
+      font-size: 0.72rem;
+      color: var(--text-dim);
+    }
+
+    .form-hint a {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .btn-secondary {
+      padding: 8px 16px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      padding: 8px 18px;
+      border-radius: 8px;
+      background: var(--accent);
+      border: none;
+      color: #060913;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="ambient-glow"></div>
+
+  <!-- Top App Header -->
+  <header>
+    <div class="header-left">
+      <a class="brand-logo" href="#">
+        <div class="logo-badge">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+          </svg>
+        </div>
+        <div class="brand-title">
+          <span>SAL AI STUDIO</span>
+        </div>
+        <div class="version-tag">V2.0 PRO</div>
+      </a>
+
+      <!-- Mode Selector -->
+      <div class="mode-pills">
+        <button class="mode-pill active" onclick="setStudioMode('exterior')">🏛️ ស្ថាបត្យកម្ម</button>
+        <button class="mode-pill" onclick="setStudioMode('interior')">🛋️ ផ្ទៃក្នុង</button>
+        <button class="mode-pill" onclick="setStudioMode('masterplan')">🗺️ ប្លង់មេ</button>
+        <button class="mode-pill" onclick="setStudioMode('diagram')">📐 3D Diagram</button>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <!-- Active AI Engine Pill -->
+      <div class="status-badge" onclick="openSettingsModal()" title="ចុចដើម្បីកំណត់ API Key ឬម៉ាស៊ីន AI">
+        <div class="status-dot"></div>
+        <span id="headerEngineText">AI Engine: Hugging Face (Active)</span>
+      </div>
+
+      <!-- VIP Credits -->
+      <div class="credits-badge" title="ចំនួន Credits គ្មានដែនកំណត់">
+        ✨ 9,999 Credits
+      </div>
+
+      <!-- Telegram Contact -->
+      <a href="https://t.me/Reachpisal" target="_blank" class="telegram-btn" title="Telegram Reach Pisal">
+        ✈️ Reach Pisal
+      </a>
+
+      <!-- Settings Icon -->
+      <button class="icon-btn" onclick="openSettingsModal()" title="Settings">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Studio Workspace -->
+  <main class="app-workspace">
+
+    <!-- Left Control Panel -->
+    <aside class="control-dock">
+
+      <!-- Section 1: Upload Source 3D Model -->
+      <div class="dock-section">
+        <div class="section-title">
+          <span>១. ផ្ទុកប្លង់ 3D / SketchUp</span>
+          <span style="font-size:0.7rem; color:var(--accent);">ជំហាន ១</span>
+        </div>
+
+        <div class="upload-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+          <div class="upload-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+          </div>
+          <div class="upload-text">ទម្លាក់រូប ឬចុចដើម្បី Upload</div>
+          <div class="upload-sub">គាំទ្រ SketchUp, 3D Max, Blender ឬប្លង់គំនូរព្រាង</div>
+          <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="handleFileUpload(event)">
+        </div>
+
+        <!-- Preview Box when image is loaded -->
+        <div class="upload-preview-box" id="uploadPreviewBox">
+          <img id="uploadPreviewThumb" class="upload-preview-img" src="" alt="3D Model">
+          <button class="preview-overlay-btn" onclick="clearUploadedImage(event)">✕ ដកចេញ</button>
+        </div>
+
+        <!-- Sample Model Button -->
+        <button class="sample-btn" onclick="loadSampleModel()">
+          <span>🏠 សាកល្បងម៉ូដែល 3D គំរូ (Sample Villa)</span>
+        </button>
+      </div>
+
+      <!-- Section 2: Selected Preset Info -->
+      <div class="dock-section">
+        <div class="section-title">
+          <span>២. ស្ទីលស្ថាបត្យកម្ម</span>
+          <button class="browse-all-btn" onclick="focusPresetSearch()">រុករកទាំងអស់ (38)</button>
+        </div>
+
+        <div class="active-preset-banner" id="activePresetBanner">
+          <img id="activePresetThumb" class="preset-mini-img" src="/assets/presets/base_3d.webp" alt="Active Preset">
+          <div class="preset-mini-info">
+            <div id="activePresetTitle" class="preset-mini-title">Sketchup ទៅជារូបភាពដូចពិត</div>
+            <div id="activePresetDesc" class="preset-mini-desc">បំប្លែងម៉ូដែល 3D ឱ្យទៅជារូបភាព Render ដូចពិតៗ</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3: Atmosphere & Lighting -->
+      <div class="dock-section">
+        <div class="section-title">
+          <span>៣. ពន្លឺ & បរិយាកាស</span>
+        </div>
+        <div class="pills-grid-3">
+          <div class="select-pill active" onclick="setLighting('soft_daylight', this)">☀️ ថ្ងៃត្រង់</div>
+          <div class="select-pill" onclick="setLighting('golden_hour', this)">🌅 ព្រឹកព្រលឹម</div>
+          <div class="select-pill" onclick="setLighting('cinematic_overcast', this)">🌇 រសៀល</div>
+          <div class="select-pill" onclick="setLighting('night_illumination', this)">🌙 យប់ប្រណិត</div>
+          <div class="select-pill" onclick="setLighting('neon_twilight', this)">🌧️ ភ្លៀងស្រាល</div>
+          <div class="select-pill" onclick="setLighting('studio_soft', this)">💡 ពន្លឺស្ទូឌីយោ</div>
+        </div>
+      </div>
+
+      <!-- Section 4: Camera Perspective -->
+      <div class="dock-section">
+        <div class="section-title">
+          <span>៤. មុំកាមេរ៉ា (Camera)</span>
+        </div>
+        <div class="pills-grid">
+          <div class="select-pill active" onclick="setCamera('eye_level', this)">👁️ ទិដ្ឋភាពភ្នែកមើល</div>
+          <div class="select-pill" onclick="setCamera('perspective_left', this)">📐 មុំ 3/4 ឆ្វេង</div>
+          <div class="select-pill" onclick="setCamera('perspective_right', this)">📐 មុំ 3/4 ស្តាំ</div>
+          <div class="select-pill" onclick="setCamera('birds_eye', this)">🦅 បក្សីហើរ 45°</div>
+          <div class="select-pill" onclick="setCamera('top_down', this)">⬇️ ប្លង់ពីលើកាត់ត្រង់</div>
+          <div class="select-pill" onclick="setCamera('isometric', this)">🧊 3D Isometric</div>
+        </div>
+      </div>
+
+      <!-- Section 5: Custom Prompt & Tags -->
+      <div class="dock-section">
+        <div class="section-title">
+          <span>៥. ការណែនាំបន្ថែម (Prompt)</span>
+        </div>
+        <textarea id="promptInput" class="prompt-box" placeholder="ឧ. បន្ថែមអាងហែលទឹក, សួនច្បារដើមត្នោត, ឡានទំនើប, ភ្លើង LED កក់ក្តៅ, កញ្ចក់ឆ្លុះ..."></textarea>
+        <div class="quick-tags">
+          <div class="quick-tag" onclick="appendPrompt('អាងហែលទឹកប្រណិត (Luxury swimming pool)')">+ អាងហែលទឹក</div>
+          <div class="quick-tag" onclick="appendPrompt('ដើមត្នោត និងសួនច្បារបៃតង (Tropical palm landscaping)')">+ ដើមត្នោត</div>
+          <div class="quick-tag" onclick="appendPrompt('ភ្លើង LED កក់ក្តៅ (Warm interior architectural lights)')">+ ភ្លើងកក់ក្តៅ</div>
+          <div class="quick-tag" onclick="appendPrompt('កញ្ចក់ថ្លាឆ្លុះ (Clear reflective architectural glass)')">+ កញ្ចក់ថ្លា</div>
+          <div class="quick-tag" onclick="appendPrompt('ផ្លូវកៅស៊ូទំនើប (Clean asphalt driveway with luxury car)')">+ ឡានប្រណិត</div>
+        </div>
+      </div>
+
+      <!-- Render Action Button -->
+      <button id="renderBtn" class="render-btn" onclick="executeRender()">
+        <span>✨ ចាប់ផ្តើម Render (Render Architecture)</span>
+      </button>
+
+    </aside>
+
+    <!-- Center Stage Canvas -->
+    <section class="stage-area" id="stageArea">
+
+      <!-- Floating Toolbar -->
+      <div class="stage-toolbar" id="stageToolbar" style="display:none;">
+        <button class="tool-btn active" id="viewSplitBtn" onclick="setViewMode('split')">
+          <span>◄ Before / After ►</span>
+        </button>
+        <button class="tool-btn" id="viewAfterBtn" onclick="setViewMode('after')">
+          <span>រូបភាព Render</span>
+        </button>
+        <button class="tool-btn" id="viewBeforeBtn" onclick="setViewMode('before')">
+          <span>ប្លង់ដើម 3D</span>
+        </button>
+        <button class="tool-btn primary" onclick="downloadRender()">
+          <span>📥 Download High-Res</span>
+        </button>
+      </div>
+
+      <!-- Viewport Stage Container -->
+      <div class="stage-canvas-container" id="stageCanvasContainer">
+
+        <!-- Empty State (No image loaded) -->
+        <div class="stage-empty-state" id="stageEmptyState">
+          <div class="empty-graphic">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M2 12h20M12 2v20M7 7l10 10M17 7L7 17"/>
+            </svg>
+          </div>
+          <div class="empty-title">សូមផ្ទុកប្លង់ 3D ឬ SketchUp របស់អ្នក</div>
+          <div class="empty-subtitle">
+            ទាញទម្លាក់ File រូបភាព ឬ Screenshot ពី SketchUp ចូលទីនេះ ដើម្បីចាប់ផ្តើមបំប្លែងទៅជារូបភាពស្ថាបត្យកម្មកម្រិត 8K UHD ដូចពិតប្រាកដ។
+          </div>
+          <button class="sample-btn" style="width: auto; padding: 10px 20px; font-weight: 600;" onclick="loadSampleModel()">
+            <span>✨ សាកល្បងម៉ូដែល 3D គំរូ (Try Sample Villa)</span>
+          </button>
+        </div>
+
+        <!-- Before / After Interactive Comparator -->
+        <div class="comparator-wrapper" id="comparatorWrapper">
+          <!-- Background: Original 3D / Wireframe (Before) -->
+          <img id="comparatorBeforeImg" class="comparator-img comparator-before" src="" alt="3D Model (Before)">
+          <div class="comparator-tag tag-before">ប្លង់ 3D / SKETCHUP</div>
+
+          <!-- Foreground: Photorealistic AI Render (After) -->
+          <div class="comparator-after-wrapper" id="comparatorAfterWrapper">
+            <img id="comparatorAfterImg" class="comparator-img comparator-after" src="" alt="Render (After)">
+            <div class="comparator-tag tag-after">SAL AI RENDER (ដូចពិត)</div>
+          </div>
+
+          <!-- Draggable Divider Handle -->
+          <div class="comparator-handle" id="comparatorHandle">
+            <div class="handle-pill">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M8 7l-5 5 5 5M16 7l5 5-5 5"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Rendering Progress Overlay -->
+      <div class="progress-overlay" id="progressOverlay">
+        <div class="progress-scanner-box">
+          <div class="scanner-line"></div>
+          <div style="font-size:2.5rem;">✨</div>
+        </div>
+        <div class="progress-status-text" id="progressText">កំពុងវិភាគទម្រង់ និង Perspective 3D...</div>
+        <div class="progress-steps">
+          <div class="step-item active" id="step1">
+            <div class="step-dot"></div>
+            <span>១. វិភាគធរណីមាត្រ និង Perspective 3D</span>
+          </div>
+          <div class="step-item" id="step2">
+            <div class="step-dot"></div>
+            <span>២. បំពាក់សម្ភារៈ បៃតង និងទេសភាពជុំវិញ</span>
+          </div>
+          <div class="step-item" id="step3">
+            <div class="step-dot"></div>
+            <span>៣. គណនាពន្លឺធម្មជាតិ និង Reflection</span>
+          </div>
+          <div class="step-item" id="step4">
+            <div class="step-dot"></div>
+            <span>៤. បញ្ចប់រូបភាពស្ថាបត្យកម្ម 8K UHD</span>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Right Presets Library Panel -->
+    <aside class="presets-drawer">
+      <div class="presets-header">
+        <div class="presets-title-row">
+          <div class="presets-title">
+            <span>បណ្ណាល័យស្ទីល</span>
+          </div>
+          <div class="presets-count" id="presetsCountBadge">38 ស្ទីល</div>
+        </div>
+        <input type="text" id="presetSearchInput" class="search-box" placeholder="🔍 ស្វែងរកស្ទីល (ឧ. វីឡា, ផ្ទះល្វែង, ប្លង់មេ...)" oninput="filterPresets()">
+      </div>
+
+      <!-- Category Filter Tabs -->
+      <div class="category-tabs" id="categoryTabs">
+        <button class="cat-tab active" onclick="setPresetCategory('all', this)">ទាំងអស់ (38)</button>
+        <button class="cat-tab" onclick="setPresetCategory('villa', this)">🏡 វីឡាប្រណិត</button>
+        <button class="cat-tab" onclick="setPresetCategory('shophouse', this)">🏢 ផ្ទះអាជីវកម្ម</button>
+        <button class="cat-tab" onclick="setPresetCategory('interior', this)">🛋️ ផ្ទៃក្នុង</button>
+        <button class="cat-tab" onclick="setPresetCategory('masterplan', this)">🗺️ ប្លង់មេ</button>
+        <button class="cat-tab" onclick="setPresetCategory('diagram', this)">📐 ដ្យាក្រាម 3D</button>
+        <button class="cat-tab" onclick="setPresetCategory('atmosphere', this)">⛅ បរិយាកាស</button>
+        <button class="cat-tab" onclick="setPresetCategory('exterior', this)">🏛️ ទូទៅ</button>
+      </div>
+
+      <!-- Scrollable Presets Grid -->
+      <div class="presets-grid" id="presetsGrid">
+        <!-- Dynamically populated from /api/presets -->
+      </div>
+    </aside>
+
+  </main>
+
+  <!-- Settings Modal -->
+  <div class="modal-backdrop" id="settingsModal" onclick="closeSettingsModal(event)">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title">⚙️ ការកំណត់ម៉ាស៊ីន AI (AI Engines)</div>
+        <button class="modal-close" onclick="closeSettingsModal()">&times;</button>
+      </div>
+
+      <!-- Hugging Face (100% Free Engine) -->
+      <div class="form-group">
+        <label class="form-label">Hugging Face Access Token (100% Free - គ្មានការគិតថ្លៃ)</label>
+        <input type="password" id="hfTokenInput" class="form-input" placeholder="hf_xxxxxxxxxxxxxxxxxxxxxx">
+        <div class="form-hint">
+          ម៉ាស៊ីន Free FLUX.1 Schnell ដោយឥតគិតថ្លៃ! យក Token ដោយឥតគិតថ្លៃនៅ <a href="https://huggingface.co/settings/tokens" target="_blank">huggingface.co/settings/tokens</a> (ជ្រើសរើស Read Permission)
+        </div>
+      </div>
+
+      <!-- Google Gemini API Key -->
+      <div class="form-group">
+        <label class="form-label">Google Gemini API Key (Google AI Studio)</label>
+        <input type="password" id="geminiKeyInput" class="form-input" placeholder="AIzaSyxxxxxxxxxxxxxxxxxxxxxx">
+        <div class="form-hint">
+          យក API Key ដោយឥតគិតថ្លៃនៅ <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a>
+        </div>
+      </div>
+
+      <!-- FAL.AI Key -->
+      <div class="form-group">
+        <label class="form-label">FAL.AI Key (Sal AI Studio Native Engine)</label>
+        <input type="password" id="falKeyInput" class="form-input" placeholder="xxxx-xxxx:yyyy">
+        <div class="form-hint">
+          ម៉ាស៊ីន Render ល្បឿនលឿនបំផុតរបស់ Sal AI Studio Native! យក Key នៅ <a href="https://fal.ai/dashboard/keys" target="_blank">fal.ai/dashboard/keys</a>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeSettingsModal()">បិទ</button>
+        <button class="btn-primary" onclick="saveApiKeys()">រក្សាទុក & ភ្ជាប់ (Save & Connect)</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // State
+    const appState = {
+      allPresets: [],
+      activePreset: null,
+      activeCategory: 'all',
+      activeLighting: 'soft_daylight',
+      activeCamera: 'eye_level',
+      sourceImageB64: null,
+      renderedImageB64: null,
+      isRendering: false,
+      sliderPos: 50,
+      activeViewMode: 'split'
+    };
+
+    // Initialize App
+    document.addEventListener('DOMContentLoaded', async () => {
+      await loadPresets();
+      await checkConfig();
+      initComparator();
+    });
+
+    // Load Presets from Backend API
+    async function loadPresets() {
+      try {
+        const res = await fetch('/api/presets');
+        appState.allPresets = await res.json();
+        renderPresetsGrid(appState.allPresets);
+        
+        // Set first preset as default
+        if (appState.allPresets.length > 0) {
+          selectPreset(appState.allPresets[0].id);
+        }
+      } catch (err) {
+        console.error('Failed to load presets:', err);
+      }
+    }
+
+    // Check Connected Engine Config
+    async function checkConfig() {
+      try {
+        const res = await fetch('/api/get_config');
+        const cfg = await res.json();
+        const headerText = document.getElementById('headerEngineText');
+        if (cfg.active_engine) {
+          headerText.textContent = `AI Engine: ${cfg.active_engine}`;
+        }
+        if (cfg.masked_hf_token) {
+          document.getElementById('hfTokenInput').value = cfg.masked_hf_token;
+        }
+        if (cfg.masked_gemini_key) {
+          document.getElementById('geminiKeyInput').value = cfg.masked_gemini_key;
+        }
+        if (cfg.masked_fal_key) {
+          document.getElementById('falKeyInput').value = cfg.masked_fal_key;
+        }
+      } catch (err) {
+        console.error('Failed to load config:', err);
+      }
+    }
+
+    // Render Presets Grid
+    function renderPresetsGrid(presets) {
+      const grid = document.getElementById('presetsGrid');
+      grid.innerHTML = '';
+
+      presets.forEach(p => {
+        const card = document.createElement('div');
+        card.className = `preset-card ${appState.activePreset && appState.activePreset.id === p.id ? 'active' : ''}`;
+        card.id = `preset-card-${p.id}`;
+        card.onclick = () => selectPreset(p.id);
+
+        card.innerHTML = `
+          <div class="preset-card-img-wrap">
+            <img class="preset-card-img" src="${p.preview}" alt="${p.title_kh}" loading="lazy" onerror="this.src='/assets/presets/base_3d.webp'">
+            <div class="preset-card-badge">${getCategoryLabel(p.category)}</div>
+            <div class="preset-card-check">✓</div>
+          </div>
+          <div class="preset-card-body">
+            <div class="preset-card-title">${p.title_kh}</div>
+            <div class="preset-card-sub">${p.title_en || p.id}</div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+
+      document.getElementById('presetsCountBadge').textContent = `${presets.length} ស្ទីល`;
+    }
+
+    function getCategoryLabel(cat) {
+      const map = {
+        villa: 'វីឡា',
+        shophouse: 'ផ្ទះល្វែង',
+        interior: 'ផ្ទៃក្នុង',
+        masterplan: 'ប្លង់មេ',
+        diagram: 'ដ្យាក្រាម',
+        atmosphere: 'បរិយាកាស',
+        commercial: 'ពាណិជ្ជកម្ម',
+        exterior: 'ទូទៅ'
+      };
+      return map[cat] || 'ទូទៅ';
+    }
+
+    // Select Preset
+    function selectPreset(presetId) {
+      const found = appState.allPresets.find(p => p.id === presetId);
+      if (!found) return;
+
+      appState.activePreset = found;
+
+      // Update UI active card
+      document.querySelectorAll('.preset-card').forEach(c => c.classList.remove('active'));
+      const activeEl = document.getElementById(`preset-card-${presetId}`);
+      if (activeEl) activeEl.classList.add('active');
+
+      // Update Dock Banner
+      document.getElementById('activePresetThumb').src = found.preview;
+      document.getElementById('activePresetTitle').textContent = found.title_kh;
+      document.getElementById('activePresetDesc').textContent = found.desc_kh || found.title_en;
+    }
+
+    // Filter by category
+    function setPresetCategory(category, el) {
+      appState.activeCategory = category;
+      document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+      filterPresets();
+    }
+
+    // Search & Filter
+    function filterPresets() {
+      const q = document.getElementById('presetSearchInput').value.toLowerCase().trim();
+      let filtered = appState.allPresets;
+
+      if (appState.activeCategory !== 'all') {
+        filtered = filtered.filter(p => p.category === appState.activeCategory);
+      }
+
+      if (q) {
+        filtered = filtered.filter(p => 
+          p.title_kh.toLowerCase().includes(q) || 
+          p.title_en.toLowerCase().includes(q) ||
+          p.id.toLowerCase().includes(q)
+        );
+      }
+
+      renderPresetsGrid(filtered);
+    }
+
+    function focusPresetSearch() {
+      const input = document.getElementById('presetSearchInput');
+      input.focus();
+      input.select();
+    }
+
+    // Studio Mode Tab
+    function setStudioMode(mode) {
+      document.querySelectorAll('.mode-pill').forEach(p => p.classList.remove('active'));
+      event.target.classList.add('active');
+
+      // Map to category
+      const catMap = {
+        exterior: 'villa',
+        interior: 'interior',
+        masterplan: 'masterplan',
+        diagram: 'diagram'
+      };
+      const targetCat = catMap[mode] || 'all';
+      const catBtn = Array.from(document.querySelectorAll('.cat-tab')).find(b => b.textContent.includes(getCategoryLabel(targetCat)));
+      if (catBtn) {
+        setPresetCategory(targetCat, catBtn);
+      }
+    }
+
+    // Lighting Pill Selection
+    function setLighting(lighting, el) {
+      appState.activeLighting = lighting;
+      el.parentElement.querySelectorAll('.select-pill').forEach(p => p.classList.remove('active'));
+      el.classList.add('active');
+    }
+
+    // Camera Perspective Selection
+    function setCamera(camera, el) {
+      appState.activeCamera = camera;
+      el.parentElement.querySelectorAll('.select-pill').forEach(p => p.classList.remove('active'));
+      el.classList.add('active');
+    }
+
+    // Quick tag prompt insertion
+    function appendPrompt(text) {
+      const box = document.getElementById('promptInput');
+      if (box.value.trim()) {
+        box.value += ', ' + text;
+      } else {
+        box.value = text;
+      }
+      box.focus();
+    }
+
+    // Upload Handler
+    function handleFileUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setSourceImage(event.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function setSourceImage(dataUrl) {
+      appState.sourceImageB64 = dataUrl;
+      document.getElementById('uploadPreviewThumb').src = dataUrl;
+      document.getElementById('uploadPreviewBox').style.display = 'block';
+      document.getElementById('dropZone').style.display = 'none';
+
+      // Update comparator before image
+      document.getElementById('comparatorBeforeImg').src = dataUrl;
+
+      // Show comparator wrapper, hide empty state
+      document.getElementById('stageEmptyState').style.display = 'none';
+      document.getElementById('comparatorWrapper').style.display = 'block';
+      document.getElementById('stageToolbar').style.display = 'flex';
+
+      // If no rendered image yet, display before image on after wrapper too
+      if (!appState.renderedImageB64) {
+        document.getElementById('comparatorAfterImg').src = dataUrl;
+      }
+
+      updateComparatorSlider(50);
+    }
+
+    function clearUploadedImage(e) {
+      if (e) e.stopPropagation();
+      appState.sourceImageB64 = null;
+      appState.renderedImageB64 = null;
+      document.getElementById('uploadPreviewBox').style.display = 'none';
+      document.getElementById('dropZone').style.display = 'flex';
+      document.getElementById('fileInput').value = '';
+      
+      document.getElementById('stageEmptyState').style.display = 'flex';
+      document.getElementById('comparatorWrapper').style.display = 'none';
+      document.getElementById('stageToolbar').style.display = 'none';
+    }
+
+    // Load Sample Model
+    function loadSampleModel() {
+      // Use local sample 3D model
+      const sampleUrl = '/latest_user_sketch.png';
+      fetch(sampleUrl)
+        .then(res => res.blob())
+        .then(blob => {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            setSourceImage(e.target.result);
+          };
+          reader.readAsDataURL(blob);
+        })
+        .catch(() => {
+          // Fallback to base_3d
+          setSourceImage('/assets/presets/base_3d.webp');
+        });
+    }
+
+    // Drag and Drop
+    const dropZone = document.getElementById('dropZone');
+    ['dragenter', 'dragover'].forEach(name => {
+      dropZone.addEventListener(name, (e) => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+      });
+    });
+    ['dragleave', 'drop'].forEach(name => {
+      dropZone.addEventListener(name, (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+      });
+    });
+    dropZone.addEventListener('drop', (e) => {
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        const file = files[0];
+        const reader = new FileReader();
+        reader.onload = (event) => setSourceImage(event.target.result);
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Before/After Slider Interaction
+    function initComparator() {
+      const wrapper = document.getElementById('comparatorWrapper');
+      const handle = document.getElementById('comparatorHandle');
+      let isDragging = false;
+
+      function onMove(e) {
+        if (!isDragging) return;
+        const rect = wrapper.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        let x = clientX - rect.left;
+        let percent = (x / rect.width) * 100;
+        percent = Math.max(0, Math.min(100, percent));
+        updateComparatorSlider(percent);
+      }
+
+      handle.addEventListener('mousedown', () => isDragging = true);
+      wrapper.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        onMove(e);
+      });
+      window.addEventListener('mouseup', () => isDragging = false);
+      window.addEventListener('mousemove', onMove);
+
+      handle.addEventListener('touchstart', () => isDragging = true);
+      window.addEventListener('touchend', () => isDragging = false);
+      window.addEventListener('touchmove', onMove);
+    }
+
+    function updateComparatorSlider(percent) {
+      appState.sliderPos = percent;
+      document.getElementById('comparatorAfterWrapper').style.width = `${percent}%`;
+      document.getElementById('comparatorHandle').style.left = `${percent}%`;
+    }
+
+    function setViewMode(mode) {
+      appState.activeViewMode = mode;
+      document.querySelectorAll('.stage-toolbar .tool-btn').forEach(b => b.classList.remove('active'));
+
+      if (mode === 'split') {
+        document.getElementById('viewSplitBtn').classList.add('active');
+        document.getElementById('comparatorHandle').style.display = 'flex';
+        updateComparatorSlider(50);
+      } else if (mode === 'after') {
+        document.getElementById('viewAfterBtn').classList.add('active');
+        document.getElementById('comparatorHandle').style.display = 'none';
+        updateComparatorSlider(100);
+      } else if (mode === 'before') {
+        document.getElementById('viewBeforeBtn').classList.add('active');
+        document.getElementById('comparatorHandle').style.display = 'none';
+        updateComparatorSlider(0);
+      }
+    }
+
+    // Execute Architectural Render
+    async function executeRender() {
+      if (!appState.sourceImageB64) {
+        alert('សូមផ្ទុកប្លង់ 3D ឬជ្រើសរើស "សាកល្បងម៉ូដែល 3D គំរូ" ជាមុនសិន!');
+        return;
+      }
+
+      const renderBtn = document.getElementById('renderBtn');
+      renderBtn.disabled = true;
+      appState.isRendering = true;
+
+      const overlay = document.getElementById('progressOverlay');
+      overlay.style.display = 'flex';
+
+      // Animated progress steps
+      const progressText = document.getElementById('progressText');
+      const steps = ['step1', 'step2', 'step3', 'step4'];
+      const texts = [
+        'កំពុងវិភាគធរណីមាត្រ និង Perspective 3D...',
+        'កំពុងបំពាក់សម្ភារៈ រុក្ខជាតិ និងទេសភាព...',
+        'កំពុងគណនាពន្លឺធម្មជាតិ និង Reflection...',
+        'កំពុងបញ្ចប់រូបភាពស្ថាបត្យកម្ម 8K UHD...'
+      ];
+
+      let stepIdx = 0;
+      const stepTimer = setInterval(() => {
+        steps.forEach((s, idx) => {
+          const el = document.getElementById(s);
+          if (idx <= stepIdx) el.classList.add('active');
+          else el.classList.remove('active');
+        });
+        if (texts[stepIdx]) progressText.textContent = texts[stepIdx];
+        stepIdx = (stepIdx + 1) % steps.length;
+      }, 700);
+
+      try {
+        const payload = {
+          image: appState.sourceImageB64,
+          preset: appState.activePreset ? appState.activePreset.id : 'sketchup_to_real',
+          prompt: document.getElementById('promptInput').value.trim(),
+          lighting: appState.activeLighting,
+          camera: appState.activeCamera
+        };
+
+        const res = await fetch('/api/render', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        clearInterval(stepTimer);
+
+        if (data.success && (data.rendered_image || data.gallery_url)) {
+          const outImg = data.rendered_image || data.gallery_url;
+          appState.renderedImageB64 = outImg;
+          document.getElementById('comparatorAfterImg').src = outImg;
+
+          // Switch to 50% split view so user immediately sees the magical comparison!
+          setViewMode('split');
+          updateComparatorSlider(50);
+        } else {
+          alert('Render Notice: ' + (data.message || 'Error executing render'));
+        }
+      } catch (err) {
+        clearInterval(stepTimer);
+        console.error('Render error:', err);
+        alert('បញ្ហាបណ្តាញពេល Render: ' + err.message);
+      } finally {
+        overlay.style.display = 'none';
+        renderBtn.disabled = false;
+        appState.isRendering = false;
+      }
+    }
+
+    // High-Res Download
+    function downloadRender() {
+      const src = appState.renderedImageB64 || appState.sourceImageB64;
+      if (!src) return;
+
+      const a = document.createElement('a');
+      a.href = src;
+      a.download = `sal_ai_render_${Date.now()}.jpg`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
+    // Settings Modal
+    function openSettingsModal() {
+      document.getElementById('settingsModal').style.display = 'flex';
+    }
+
+    function closeSettingsModal(e) {
+      if (e && e.target !== document.getElementById('settingsModal')) return;
+      document.getElementById('settingsModal').style.display = 'none';
+    }
+
+    async function saveApiKeys() {
+      const hf = document.getElementById('hfTokenInput').value.trim();
+      const gemini = document.getElementById('geminiKeyInput').value.trim();
+      const fal = document.getElementById('falKeyInput').value.trim();
+
+      if (hf && !hf.includes('...')) {
+        await fetch('/api/save_hf_token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ hf_token: hf })
+        });
+      }
+
+      if (gemini && !gemini.includes('...')) {
+        await fetch('/api/save_key', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ api_key: gemini })
+        });
+      }
+
+      if (fal && !fal.includes('...')) {
+        await fetch('/api/save_fal_key', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fal_key: fal })
+        });
+      }
+
+      await checkConfig();
+      document.getElementById('settingsModal').style.display = 'none';
+      alert('បានរក្សាទុកការកំណត់ម៉ាស៊ីន AI រួចរាល់!');
+    }
+  </script>
+</body>
+</html>

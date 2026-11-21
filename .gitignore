@@ -1,0 +1,21 @@
+# API Keys and sensitive credentials
+config.json
+.env
+*.key
+
+# Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+
+# Local render output
+gallery/
+latest_user_sketch.png
+tmp_edge_debug/
+
+# OS and Editor files
+.DS_Store
+Thumbs.db
+*.log
