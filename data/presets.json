@@ -6,7 +6,7 @@
     "title_en": "Sketchup ទៅជារូបភាពដូចពិត",
     "desc_kh": "បំប្លែងម៉ូដែល 3D ឱ្យទៅជារូបភាព Render ដូចពិតៗ។ វានឹងបន្ថែមរុក្ខជាតិបៃតងដោយស្វ័យប្រវត្តិទៅតាមទីតាំងសមស្រប ប៉ុន្តែនឹងមិនបន្ថែមមនុស្ស ឬរថយន្តឡើយ។",
     "desc_en": "Transform 3D models into photorealistic renders. Automatically places greenery in logical zones while strictly omitting people and cars.",
-    "preview": "/assets/presets/base_3d.webp",
+    "preview": "assets/presets/base_3d.webp",
     "category": "exterior",
     "instructions": [
       "PRIMARY CONSTRAINT: Preserve all architectural geometry exactly as in the source image. This includes massing, proportions, rooflines, façade articulation, window and door placement, and all structural relationships. No changes of any kind.",
@@ -26,7 +26,7 @@
     "title_en": "ប្តូរ Proxy ទៅជាដើមឈើពិត",
     "desc_kh": "បំប្លែងម៉ូដែល 3D និងប្តូរ Proxy (ប្រអប់ស/ខ្មៅ) ទាំងអស់ទៅជាដើមឈើនិងរុក្ខជាតិពិតៗ ខណៈពេលដែលរក្សារចនាសម្ព័ន្ធអគារដដែល។",
     "desc_en": "Replaces all white/black box proxy placeholders with highly detailed, photorealistic 3D trees and plants while keeping the building geometry exact.",
-    "preview": "/assets/presets/proxy_to_real_trees.webp",
+    "preview": "assets/presets/proxy_to_real_trees.webp",
     "category": "exterior",
     "instructions": [
       "PRIMARY CONSTRAINT: Preserve all architectural geometry exactly as in the source image. This includes massing, proportions, rooflines, façade articulation, window and door placement, and all structural relationships. No changes of any kind.",
@@ -46,7 +46,7 @@
     "title_en": "Sb-Exterior",
     "desc_kh": "បំប្លែងម៉ូដែល 3D ទៅជាទិដ្ឋភាពពេលព្រលប់ (Blue Hour) ជាមួយពន្លឺភ្លើងកក់ក្តៅចាំងចេញពីក្នុងផ្ទះ ភ្លើងបំភ្លឺសសរ និងចំណាំងផ្លាតលើផ្ទៃទឹក។",
     "desc_en": "Dramatic blue-hour twilight transformation with glowing warm interior lighting through windows, exterior column accent lights, and water reflections.",
-    "preview": "/assets/presets/sb_exterior.webp",
+    "preview": "assets/presets/sb_exterior.webp",
     "category": "exterior",
     "instructions": [
       "PRIMARY CONSTRAINT: Preserve all architectural geometry exactly as in the source image. This includes massing, proportions, rooflines, façade articulation, window and door placement, and all structural relationships. No changes of any kind.",
@@ -66,7 +66,7 @@
     "title_en": "រូបថតវិមានប្រណិត (Mansion Photography)",
     "desc_kh": "ការថតរូបវិមានប្រណិតដ៏ឆើតឆាយ ជាមួយការរៀបចំសួនច្បារប្រណិត ធាតុស្ថាបត្យកម្មបុរាណ និងបរិយាកាសវិមានប្រណិត។ ល្អសម្រាប់គម្រោងលំនៅដ្ឋានប្រណិតដែលមានរចនាប័ទ្មអមតៈ។",
     "desc_en": "Elegant mansion photography with refined landscaping, classical architectural elements, and premium estate atmosphere. Perfect for luxury residential projects with timeless design.",
-    "preview": "/assets/presets/mansion.webp",
+    "preview": "assets/presets/mansion.webp",
     "category": "villa",
     "instructions": [
       "PRIMARY CONSTRAINT: Preserve all architectural geometry exactly as in the source image. This includes massing, proportions, rooflines, façade articulation, window and door placement, and all structural relationships. No changes of any kind.",
@@ -89,7 +89,7 @@
     "title_en": "ប្តូរម៉ូដែលឱ្យដូចពិត (Realistic Refinement)",
     "desc_kh": "រក្សាទ្រង់ទ្រាយដើម ១០០% ដោយគ្រាន់តែបន្ថែមវាយនភាពសម្ភារៈសំណង់ PBR និងពន្លឺឱ្យដូចរូបពិតៗបំផុត ដោយមិនមានការកែប្រែគ្រោងស្ថាបត្យកម្ម។",
     "desc_en": "Strictly preserves original geometry. Adds high-fidelity realistic textures, PBR materials, and professional lighting without structural changes.",
-    "preview": "/assets/presets/refine_mat2.webp",
+    "preview": "assets/presets/refine_mat2.webp",
     "category": "exterior",
     "instructions": [
       "PRIMARY CONSTRAINT: Preserve ONLY the main architectural geometry exactly as in the source (massing, rooflines, doors, windows). The building structure must not change.",
@@ -111,7 +111,7 @@
     "title_en": "វីឡាលើជម្រាលភ្នំ",
     "desc_kh": "អគារដែលស្ថិតនៅលើជម្រាលភ្នយ៉ាងស្រស់ស្អាត និងមានភ្នំនៅសងខាងឆ្វេងស្តាំ។",
     "desc_en": "Building dramatically perched on a hill slope, framed by mountains on both sides.",
-    "preview": "/assets/presets/mountain_hillside.webp",
+    "preview": "assets/presets/mountain_hillside.webp",
     "category": "villa",
     "instructions": [
       "Maintain all structural forms, rooflines, and window patterns exactly as shown in the source.",
@@ -135,7 +135,7 @@
     "title_en": "ភូមិគ្រឹះមាត់សមុទ្រថ្មដា",
     "desc_kh": "វីឡាប្រណិតលើច្រាំងថ្មមាត់សមុទ្រដែលមានទឹកខៀវស្រងាត់ ឆ្នេរខ្សាច់ស និងដើមដូងស្រស់ស្អាត។",
     "desc_en": "Luxury villa perched on a rocky shoreline with turquoise waters, white sand, and majestic palm trees.",
-    "preview": "/assets/presets/coastal_cliff.webp",
+    "preview": "assets/presets/coastal_cliff.webp",
     "category": "villa",
     "instructions": [
       "Maintain all structural forms, rooflines, and window patterns exactly as shown in the source.",
@@ -159,7 +159,7 @@
     "title_en": "ភូមិគ្រឹះមាត់ស្ទឹងជើងភ្នំ",
     "desc_kh": "វីឡាទំនើបក្បែរស្ទឹងភ្នំដែលមានទឹកហូរ និងហ៊ុំព្រ័ទ្ធដោយព្រៃឈើខៀវស្រងាត់។",
     "desc_en": "A serene modern villa nestled by a rocky mountain stream with flowing water and lush forest.",
-    "preview": "/assets/presets/mountain_stream.webp",
+    "preview": "assets/presets/mountain_stream.webp",
     "category": "villa",
     "instructions": [
       "Maintain all structural forms, rooflines, and window patterns exactly as shown in the source.",
@@ -183,7 +183,7 @@
     "title_en": "វីឡាលម្ហែកាយមាត់បឹង",
     "desc_kh": "ភូមិគ្រឹះស្ងប់ស្ងាត់មាត់បឹងធំល្វឹងល្វើយ ជាមួយស្ពានឈើ និងពន្លឺថ្ងៃរៀបលិចពណ៌មាសដ៏ស្រស់ស្អាត។",
     "desc_en": "A serene villa overlooking a calm, vast lake with a wooden pier and soft golden sunset lighting.",
-    "preview": "/assets/presets/lake_relaxing.webp",
+    "preview": "assets/presets/lake_relaxing.webp",
     "category": "villa",
     "instructions": [
       "STRICT STRUCTURAL FIDELITY: Maintain all building forms, bungalow proportions, roof shapes, thatched roofing details, balconies, stairs, railings, and window/door placements exactly as shown in the source image. No architectural reinterpretation.",
@@ -207,7 +207,7 @@
     "title_en": "វីឡាលើជម្រាលមាត់បឹង",
     "desc_kh": "ភូមិគ្រឹះប្រណិតលើជម្រាលភ្នំដែលមើលឃើញទិដ្ឋភាពបឹងធំល្វឹងល្វើយ និងស្ងប់ស្ងាត់។",
     "desc_en": "A premium villa perched on a sloping hillside with a direct panoramic view of a vast, peaceful lake.",
-    "preview": "/assets/presets/lake_hillside.webp",
+    "preview": "assets/presets/lake_hillside.webp",
     "category": "villa",
     "instructions": [
       "Maintain all structural forms, rooflines, and window patterns exactly as shown in the source.",
@@ -233,7 +233,7 @@
     "title_en": "ភូមិគ្រឹះលើជម្រាលភ្នំវាលស្រែ",
     "desc_kh": "រុក្ខជាតិស្រូវខៀវស្រងាត់មានចលនាខ្យល់បក់ធម្មជាតិ ទេសភាពជនបទកម្ពុជាដ៏ពិតប្រាកដ និងចំណាំងផ្លាតធម្មជាតិលើវត្ថុ។",
     "desc_en": "Dense healthy rice fields and rural Cambodian scenery with distant trees and houses on the horizon.",
-    "preview": "/assets/presets/rice_field_hillside.webp",
+    "preview": "assets/presets/rice_field_hillside.webp",
     "category": "villa",
     "instructions": [
       "PRIMARY CONSTRAINT: Preserve all architectural geometry, camera perspective, and viewpoint exactly as in the source image. Do not change the camera angle, focal length, field of view, or structural positions.",
@@ -253,7 +253,7 @@
     "title_en": "វីឡាលម្ហែកាយកោះរ៉ុង",
     "desc_kh": "វីឡាប្រណិតលើឆ្នេរខ្សាច់សស្អាតមាត់សមុទ្រកោះរ៉ុង មានទឹកខៀវស្រងាត់ និងដើមដូងខ្ពស់ៗស្រស់ស្អាត។",
     "desc_en": "Luxury coastal villa on a pristine white sand beach with turquoise sea and tall leaning coconut palms.",
-    "preview": "/assets/presets/koh_rong.webp",
+    "preview": "assets/presets/koh_rong.webp",
     "category": "villa",
     "instructions": [
       "STRICT STRUCTURAL FIDELITY: Maintain all architectural geometry, rooflines, and window patterns exactly as shown in the source image. No changes to the building design.",
@@ -283,7 +283,7 @@
     "title_en": "រូបថតស្ថាបត្យកម្មពាណិជ្ជកម្ម",
     "desc_kh": "ការបន្ថែមមនុស្ស រថយន្ត និងដើមឈើដោយឆ្លាតវៃ ផ្អែកលើផ្ទៃបេតុង និងសួនដែលមានស្រាប់។ វានឹងមិនបន្ថែមផ្លូវថ្នល់ថ្មីដែលមិនមានក្នុងរូបភាពដើមឡើយ។",
     "desc_en": "Smart AI population based on existing hardscape. Intelligently adds people, cars, and trees to your paved areas and planters. No new streets added.",
-    "preview": "/assets/presets/commercial.webp",
+    "preview": "assets/presets/commercial.webp",
     "category": "commercial",
     "instructions": [
       "PRIMARY CONSTRAINT: Preserve all architectural geometry exactly as in the source image. This includes massing, proportions, rooflines, façade articulation, window and door placement, and all structural relationships. No changes of any kind.",
@@ -304,7 +304,7 @@
     "title_en": "រូបថតផ្ទះអាជីវកម្ម (Shop-House)",
     "desc_kh": "ទិដ្ឋភាពផ្លូវក្នុងក្រុងដ៏អ៊ូអរ មានស្លាកយីហោហាង កន្លែងអង្គុយហាងកាហ្វេ មនុស្សដើរ និងរថយន្តបើកបរដែលមាន Motion Blur តិចៗ។",
     "desc_en": "Bustling urban street life with shop signage, cafe seating, Grab delivery riders, and cinematic motion blur.",
-    "preview": "/assets/presets/shophouse.webp",
+    "preview": "assets/presets/shophouse.webp",
     "category": "shophouse",
     "instructions": [
       "Professional commercial shop-house photography",
@@ -327,7 +327,7 @@
     "title_en": "ផាប់តន្ត្រីផ្ទាល់ (Live Music Pub)",
     "desc_kh": "ផាប់តន្ត្រីផ្ទាល់ដែលមានបរិយាកាសអ៊ូអរ ពន្លឺភ្លើងស្រស់ស្អាត មានឆាកតន្ត្រី និងមនុស្សកំពុងរីករាយ។",
     "desc_en": "Vibrant live house concert atmosphere with stage spotlights, overhead truss fixtures, a dynamic band performance, and cozy pub seating.",
-    "preview": "/assets/presets/live_music_pub.webp",
+    "preview": "assets/presets/live_music_pub.webp",
     "category": "commercial",
     "instructions": [
       "Professional Live Music Pub / Live House photography",
@@ -344,7 +344,7 @@
     "title_en": "រូបថតផ្ទះល្វែង/ថោនហោស៍",
     "desc_kh": "ការបញ្ចូលផ្ទះល្វែងទំនើបទៅក្នុងជួរផ្ទះក្នុងក្រុងភ្នំពេញ। រក្សាផ្ទះនៅសងខាង និងប្រើពន្លឺមេឃស្រទុំដើម្បីឱ្យមានភាពប្រាកដនិយម។",
     "desc_en": "Modern geometric town-house integrated into Phnom Penh urban rows. Features adjacent buildings and overcast lighting for realistic city integration.",
-    "preview": "/assets/presets/townhouse1.webp",
+    "preview": "assets/presets/townhouse1.webp",
     "category": "shophouse",
     "instructions": [
       "PRIMARY CONSTRAINT: Preserve all architectural geometry exactly as in the source image. This includes massing, proportions, rooflines, façade articulation, window and door placement, and all structural relationships. No changes of any kind.",
@@ -364,7 +364,7 @@
     "title_en": "ថោនហោស៍ Op2",
     "desc_kh": "ការចម្លង និងពង្រឹងអគារសងខាងឆ្វេងស្តាំឱ្យបានច្បាស់លាស់ ទៅតាមបរិបទរូបភាពដើម।",
     "desc_en": "Precise replication of neighboring buildings on left and right sides to match source context exactly.",
-    "preview": "/assets/presets/townhouse2.webp",
+    "preview": "assets/presets/townhouse2.webp",
     "category": "shophouse",
     "instructions": [
       "Professional commercial town-house photography.",
@@ -387,7 +387,7 @@
     "title_en": "ប្លង់មេ (Master Plan)",
     "desc_kh": "ការបង្ហាញរូបភាពប្លង់មេទ្រង់ទ្រាយធំ។ វានឹងកែសម្រួលស្ថាបត្យកម្ម និងហេដ្ឋារចនាសម្ព័ន្ធដោយស្វ័យវត្តទៅតាមបរិបទទីតាំង (Site Context) ដែលអ្នកបានជ្រើសរើស។",
     "desc_en": "Cinematic large-scale layout visualization. Automatically adapts architecture and infrastructure to your selected Site Context.",
-    "preview": "/assets/presets/master_1.webp",
+    "preview": "assets/presets/master_1.webp",
     "category": "masterplan",
     "instructions": [
       "Professional cinematic large-scale masterplan visualization",
@@ -410,7 +410,7 @@
     "title_en": "Masterplan 3D Top View",
     "desc_kh": "ការបង្ហាញរូបភាពប្លង់មេ 3D ពីលើត្រង់យ៉ាងពិតៗ ជាមួយទឹកសមុទ្រ និងរុក្ខជាតិខៀវស្រងាត់។",
     "desc_en": "High-altitude 3D top-down render of your masterplan with realistic water and vegetation.",
-    "preview": "/assets/presets/master_2.webp",
+    "preview": "assets/presets/master_2.webp",
     "category": "masterplan",
     "instructions": [
       "NEURAL MASTERPLAN EXTRUSION: Transform this 2D top elevation into a high-quality 3D realistic top elevation view.",
@@ -432,7 +432,7 @@
     "title_en": "Masterplan Realistic",
     "desc_kh": "ការ Render បែបដូចពិតកម្រិតខ្ពស់សម្រាប់គម្រោងប្លង់មេទ្រង់ទ្រាយធំ។",
     "desc_en": "Sophisticated realistic rendering for large-scale masterplan projects.",
-    "preview": "/assets/presets/master_3.webp",
+    "preview": "assets/presets/master_3.webp",
     "category": "masterplan",
     "instructions": [
       "Professional realistic masterplan photography.",
@@ -452,7 +452,7 @@
     "title_en": "Masterplan Illustration",
     "desc_kh": "រចនាប័ទ្មគំនូរស្ថាបត្យកម្មបែបសិល្បៈ ស្អាត និងមានពណ៌ស្រស់ឆើតឆាយ។",
     "desc_en": "Clean, artistic architectural illustration style with vibrant colors and stylized elements.",
-    "preview": "/assets/presets/master_4.webp",
+    "preview": "assets/presets/master_4.webp",
     "category": "masterplan",
     "instructions": [
       "TECHNICAL MASTERPLAN ILLUSTRATION: High-end architectural competition style, clean and professional.",
@@ -474,7 +474,7 @@
     "title_en": "តុល្យភាពធម្មជាតិក្នុងក្រុង",
     "desc_kh": "ទិដ្ឋភាពពីមុខអគារដែលមានផ្លូវថ្នល់ ជាមួយមែកឈើ និងស្លឹកឈើខាងមុខ និងស្រមោលដើមឈើធ្លាក់លើផ្លូវ។",
     "desc_en": "Frontal vista featuring a clean street, overhanging foliage, and artistic tree shadows casting on the pavement.",
-    "preview": "/assets/presets/natural_balance.webp",
+    "preview": "assets/presets/natural_balance.webp",
     "category": "exterior",
     "instructions": [
       "PRIMARY CONSTRAINT : Preserve all architectural geometry exactly as in the source image. This includes massing, proportions, rooflines, façade articulation, window and door placement, and all structural relationships. No changes of any kind.",
@@ -494,7 +494,7 @@
     "title_en": "Rain Tree Estate (New)",
     "desc_kh": "វីឡាទំនើបបែបត្រូពិចហ៊ុំព័ទ្ធដោយដើមគីនីធំៗ (Rain Trees) ដែលមានពន្លឺព្រះអាទិត្យជះតាមចន្លោះស្លឹក ព្រមទាំងមានសួនច្បារខៀវស្រងាត់ និងរថយន្ត SUV ពណ៌ខ្មៅប្រណិត។",
     "desc_en": "Tropical modern villa framed by massive spreading Rain Trees with dappled sunlight, lush garden and premium black SUV.",
-    "preview": "/assets/presets/rain_tree_estate.webp",
+    "preview": "assets/presets/rain_tree_estate.webp",
     "category": "villa",
     "instructions": [
       "PRIMARY CONSTRAINT: Preserve all architectural geometry exactly as in the source image. This includes massing, proportions, rooflines, façade articulation, window and door placement, and all structural relationships. No changes of any kind.",
@@ -514,7 +514,7 @@
     "title_en": "Render-Interior",
     "desc_kh": "ការបង្ហាញផ្ទៃក្នុងកម្រិតខ្ពស់. ភ្លឺ ច្បាស់ និងទិដ្ឋភាពមុំទូលាយបែបអាជីព។",
     "desc_en": "High-end interior presentation. Bright, airy, and professional wide-angle look.",
-    "preview": "/assets/presets/interior1.webp",
+    "preview": "assets/presets/interior1.webp",
     "category": "interior",
     "instructions": [
       "architectural high-end photography, HDR exposure, balanced interior and exterior lighting,hyper-realistic textures, 8K resolution.",
@@ -536,7 +536,7 @@
     "title_en": "រូបថតផ្ទៃក្នុង",
     "desc_kh": "ការកំណត់រូបថតផ្ទៃក្នុងមូលដ្ឋានជាមួយពន្លឺអាជីព និងសម្ភារៈពិតប្រាកដ។",
     "desc_en": "Base interior photography preset with professional lighting and realistic materials.",
-    "preview": "/assets/presets/interior2.webp",
+    "preview": "assets/presets/interior2.webp",
     "category": "interior",
     "instructions": [],
     "day_control": "default",
@@ -549,7 +549,7 @@
     "title_en": "រូបថតផ្ទៃក្នុង (Type III)",
     "desc_kh": "ការបង្ហាញផ្ទៃក្នុងកម្រិតខ្ពស់ជាមួយសម្ភារៈ PBR ច្បាស់ល្អ និងការថតរូបស្ថាបត្យកម្មបែបអាជីព។",
     "desc_en": "High-end interior visualization with physically accurate PBR materials and professional architectural photography style.",
-    "preview": "/assets/presets/interior3.webp",
+    "preview": "assets/presets/interior3.webp",
     "category": "interior",
     "instructions": [
       "Interior high-end photography, HDR exposure, balanced interior and exterior lighting,hyper-realistic textures, 8K resolution.",
@@ -566,7 +566,7 @@
     "title_en": "រូបថតអចលនទ្រព្យ (Type I)",
     "desc_kh": "រចនាប័ទ្មថតរូបអចលនទ្រព្យអាជីព។",
     "desc_en": "Professional, bright real estate photography style.",
-    "preview": "/assets/presets/real_estate1.webp",
+    "preview": "assets/presets/real_estate1.webp",
     "category": "exterior",
     "instructions": [
       "PRIMARY CONSTRAINT: Preserve all architectural geometry exactly as in the source image. This includes massing, proportions, rooflines, façade articulation, window and door placement, and all structural relationships. No changes of any kind.",
@@ -585,7 +585,7 @@
     "title_en": "Real Estate Photography type II",
     "desc_kh": "វីឡាប្រណិតជាមួយសួនច្បារបែបរីសត់ ស្មៅខៀវស្អាតល្អ ដើមឈើធំៗ ផ្កាចម្រុះពណ៌ និងរថយន្តប្រណិត។ ល្អសម្រាប់អចលនទ្រព្យលំនៅដ្ឋានកម្រិតខ្ពស់។",
     "desc_en": "Premium villa with resort-style garden, manicured lawns, mature trees, colorful flowers, and luxury vehicles. Perfect for high-end residential properties.",
-    "preview": "/assets/presets/real_estate2.webp",
+    "preview": "assets/presets/real_estate2.webp",
     "category": "exterior",
     "instructions": [
       "PRIMARY CONSTRAINT: Preserve all architectural geometry exactly as in the source image. This includes massing, proportions, rooflines, façade articulation, window and door placement, and all structural relationships. No changes of any kind.",
@@ -604,7 +604,7 @@
     "title_en": "Real Estate Photography type III",
     "desc_kh": "ការរៀបចំសួនច្បារវិមានប្រណិតជាមួយផ្លូវថ្មប្រណិត ស្មៅរវាងថ្ម របងឈើកាត់ស្អាត ដើមឈើលម្អ និងពន្លឺសួនច្បារទំនើប។ បរិយាកាសល្ងាចជាមួយពន្លឺកក់ក្តៅ។",
     "desc_en": "Elegant mansion landscaping with stone pathways, grass between pavers, manicured hedges, ornamental trees, and sophisticated garden lighting. Evening ambiance with warm lights.",
-    "preview": "/assets/presets/real_estate3.webp",
+    "preview": "assets/presets/real_estate3.webp",
     "category": "exterior",
     "instructions": [
       "PRIMARY CONSTRAINT: Preserve all architectural geometry exactly as in the source image. This includes massing, proportions, rooflines, façade articulation, window and door placement, and all structural relationships. No changes of any kind.",
@@ -623,7 +623,7 @@
     "title_en": "Real Estate Photography type IV",
     "desc_kh": "រចនាប័ទ្មបុរីលំនៅដ្ឋានបិទជិតផ្តាច់មុខ ជាមួយសួនស្មៅខៀវស្រងាត់ របងរុក្ខជាតិកាត់តែងយ៉ាងស្អាត និងផ្លូវថ្នល់ទំនើប។ រួមមានរថយន្ត SUV ប្រណិត និងការរៀបចំពន្លឺស្ស្ថាបត្យកម្ម។",
     "desc_en": "Exclusive gated community style with manicured emerald lawns, dense sculptural hedges, and high-end streetscapes. Features premium luxury SUVs and architectural lighting.",
-    "preview": "/assets/presets/real_estate4.webp",
+    "preview": "assets/presets/real_estate4.webp",
     "category": "exterior",
     "instructions": [
       "PRIMARY CONSTRAINT: Preserve all architectural geometry exactly as in the source image. This includes massing, proportions, rooflines, façade articulation, window and door placement, and all structural relationships. No changes of any kind.",
@@ -642,7 +642,7 @@
     "title_en": "រូបភាពបែប Hardscape (បៃតងតិច)",
     "desc_kh": "ផ្តោតលើការក្រាលការ៉ូនៅខាងមុខ និងកាត់បន្ថយរុក្ខជាតិបៃតង ដោយរក្សាដើមឈើតែនៅផ្នែកខាងក្រោយប៉ុណ្ោះ។",
     "desc_en": "Modern hardscape focus with minimal foreground greenery. Background trees only.",
-    "preview": "/assets/presets/less_green.webp",
+    "preview": "assets/presets/less_green.webp",
     "category": "exterior",
     "instructions": [
       "Maintain all structural forms, rooflines, and window patterns exactly as shown in the source.",
@@ -661,7 +661,7 @@
     "title_en": "Construction Site",
     "desc_kh": "ផ្ទះថ្មីសាងសង់លើដីខ្សាច់ ជាមួយរបងសាងសង់។ គ្មានដើមឈើ គ្មានការ៉ូ មានតែដីធម្មជាតិបង្ហាញស្ថានភាពសាងសង់ដើម។",
     "desc_en": "Newly-built house on bare soil with construction fence. No greenery, no tiles, natural dirt ground showing raw construction state.",
-    "preview": "/assets/presets/construction.webp",
+    "preview": "assets/presets/construction.webp",
     "category": "exterior",
     "instructions": [
       "Maintain all structural forms, rooflines, and window patterns exactly as shown in the source.",
@@ -685,7 +685,7 @@
     "title_en": "បំប្លែងប្លង់ 2D ទៅជា 3D Top View",
     "desc_kh": "បំប្លែងប្លង់បាត 2D ទៅជារូបភាព Render 3D ពីលើត្រង់យ៉ាងពិតៗ។",
     "desc_en": "Transform 2D floor plans into realistic 3D top-down interior renders.",
-    "preview": "/assets/presets/2d_3d.webp",
+    "preview": "assets/presets/2d_3d.webp",
     "category": "diagram",
     "instructions": [
       "NEURAL FLOORPLAN EXTRUSION: Transform this 2D architectural plan into a high-quality 3D top-down interior render.",
@@ -707,7 +707,7 @@
     "title_en": "Isometric Cutaway 3D View",
     "desc_kh": "ការបង្ហាញប្លង់កាត់ 3D Isometric ដែលមានគុណភាពខ្ពស់ ផ្អែកលើប្លង់បាត ជាមួយនឹងពន្លឺ និងសម្ភារៈពិតៗ។",
     "desc_en": "High-quality photorealistic 3D isometric cutaway based on floorplan with realistic lighting and materials.",
-    "preview": "/assets/presets/2d_iso.webp",
+    "preview": "assets/presets/2d_iso.webp",
     "category": "diagram",
     "instructions": [
       "Create a high-quality, photorealistic with a 45-degree isometric view 3D cutaway render based exactly on the floorplan.",
@@ -729,7 +729,7 @@
     "title_en": "2D Color Floor Plan",
     "desc_kh": "ការ Render ប្លង់បាត 2D បែបពណ៌អាជីព មានខ្សែបន្ទាត់ច្បាស់លាស់ ជញ្ជាំងដិត និងស្រមោលស្រាលៗដើម្បីបង្កើតជម្រៅ។",
     "desc_en": "Professional 2D color rendering of your floor plan with clean lines, bold walls, and light shading for depth.",
-    "preview": "/assets/presets/2d_color.webp",
+    "preview": "assets/presets/2d_color.webp",
     "category": "diagram",
     "instructions": [
       "From the floor plan/2D drawing I uploaded, please redraw it into an image with 2D colour rendering (top view floor plan) according to the original layout.",
@@ -749,7 +749,7 @@
     "title_en": "បរិយាកាសក្រុងពេលភ្លៀង",
     "desc_kh": "ទិដ្ឋភាពផ្លូវបំបែកក្នុងក្រុងពេលភ្លៀង មានចំណាំងផ្ាតលើផ្លូវសើម និងបរិយាកាសស្ងប់ស្ងាត់បែបភាពយន្ត។",
     "desc_en": "Cinematic rainy city intersection with wet reflections and moody atmosphere.",
-    "preview": "/assets/presets/rainy.webp",
+    "preview": "assets/presets/rainy.webp",
     "category": "atmosphere",
     "instructions": [
       "SKY & SUN POSITION:Clear to lightly hazy sky with smooth gradient tones. Pale blue transitioning to warm light near the horizon. Low sun positioned behind and partially occluded by the towers.",
@@ -769,7 +769,7 @@
     "title_en": "ទិដ្ឋភាពពេលថ្ងៃ (Day Scene)",
     "desc_kh": "រូបភាពវិមានប្រណិតជាមួយ Aston Martin Vantage និងពន្លឺថ្ងៃដ៏ស្រស់ស្អាត។",
     "desc_en": "Premium estate with Aston Martin Vantage, crisp daylight, and natural window reflections.",
-    "preview": "/assets/presets/morning1.webp",
+    "preview": "assets/presets/morning1.webp",
     "category": "atmosphere",
     "instructions": [
       "Maintain all structural forms, rooflines, and window patterns exactly as shown in the source.",
@@ -787,7 +787,7 @@
     "title_en": "អារម្មណ៍ពេលព្រឹក (Morning Vibe)",
     "desc_kh": "រូបភាពវិមានប្រណិតជាមួយ Bentley Continental GT Mulliner ពន្លឺព្រឹកព្រលឹមស្រស់ស្អាត និងសួនច្បារប្រណិត។",
     "desc_en": "Premium estate with Bentley Continental GT Mulliner, crisp morning light, and lush resort-style garden.",
-    "preview": "/assets/presets/morning2.webp",
+    "preview": "assets/presets/morning2.webp",
     "category": "atmosphere",
     "instructions": [
       "Maintain all structural forms, rooflines, and window patterns exactly as shown in the source.",

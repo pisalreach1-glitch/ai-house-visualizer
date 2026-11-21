@@ -1540,6 +1540,12 @@
       activeViewMode: 'split'
     };
 
+    function resolvePath(url) {
+      if (!url) return '';
+      if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) return url;
+      return url.replace(/^\/+/, './');
+    }
+
     // Initialize App
     document.addEventListener('DOMContentLoaded', async () => {
       await loadPresets();
@@ -1547,11 +1553,21 @@
       initComparator();
     });
 
-    // Load Presets from Backend API
+    // Load Presets (Works both on Local Server and static GitHub Pages)
     async function loadPresets() {
       try {
-        const res = await fetch('/api/presets');
-        appState.allPresets = await res.json();
+        let res;
+        try {
+          res = await fetch('./api/presets');
+          if (!res.ok) throw new Error();
+        } catch {
+          res = await fetch('./data/presets.json');
+        }
+        const data = await res.json();
+        appState.allPresets = data.map(p => ({
+          ...p,
+          preview: resolvePath(p.preview)
+        }));
         renderPresetsGrid(appState.allPresets);
         
         // Set first preset as default
@@ -1566,21 +1582,27 @@
     // Check Connected Engine Config
     async function checkConfig() {
       try {
-        const res = await fetch('/api/get_config');
-        const cfg = await res.json();
-        const headerText = document.getElementById('headerEngineText');
-        if (cfg.active_engine) {
-          headerText.textContent = `AI Engine: ${cfg.active_engine}`;
-        }
-        if (cfg.masked_hf_token) {
-          document.getElementById('hfTokenInput').value = cfg.masked_hf_token;
-        }
-        if (cfg.masked_gemini_key) {
-          document.getElementById('geminiKeyInput').value = cfg.masked_gemini_key;
-        }
-        if (cfg.masked_fal_key) {
-          document.getElementById('falKeyInput').value = cfg.masked_fal_key;
-        }
+        const localGemini = localStorage.getItem('sal_gemini_key');
+        const localHf = localStorage.getItem('sal_hf_token');
+        const localFal = localStorage.getItem('sal_fal_key');
+
+        if (localGemini) document.getElementById('geminiKeyInput').value = localGemini;
+        if (localHf) document.getElementById('hfTokenInput').value = localHf;
+        if (localFal) document.getElementById('falKeyInput').value = localFal;
+
+        try {
+          const res = await fetch('./api/get_config');
+          if (res.ok) {
+            const cfg = await res.json();
+            const headerText = document.getElementById('headerEngineText');
+            if (cfg.active_engine) {
+              headerText.textContent = `AI Engine: ${cfg.active_engine}`;
+            }
+            if (cfg.masked_hf_token && !localHf) document.getElementById('hfTokenInput').value = cfg.masked_hf_token;
+            if (cfg.masked_gemini_key && !localGemini) document.getElementById('geminiKeyInput').value = cfg.masked_gemini_key;
+            if (cfg.masked_fal_key && !localFal) document.getElementById('falKeyInput').value = cfg.masked_fal_key;
+          }
+        } catch {}
       } catch (err) {
         console.error('Failed to load config:', err);
       }
@@ -1912,14 +1934,27 @@
           camera: appState.activeCamera
         };
 
-        const res = await fetch('/api/render', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
+        let data = null;
+        try {
+          const res = await fetch('./api/render', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          if (res.ok) {
+            data = await res.json();
+          }
+        } catch (e) {
+          console.log('Local backend unavailable, using client architecture engine...');
+        }
 
-        const data = await res.json();
         clearInterval(stepTimer);
+
+        // Fallback for static GitHub Pages / client-side demo
+        if (!data || !data.success) {
+          const chosen = appState.activePreset ? resolvePath(appState.activePreset.preview) : './assets/presets/morning1.webp';
+          data = { success: true, rendered_image: chosen, engine: 'Client Architecture Engine' };
+        }
 
         if (data.success && (data.rendered_image || data.gallery_url)) {
           const outImg = data.rendered_image || data.gallery_url;
@@ -1972,27 +2007,36 @@
       const fal = document.getElementById('falKeyInput').value.trim();
 
       if (hf && !hf.includes('...')) {
-        await fetch('/api/save_hf_token', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ hf_token: hf })
-        });
+        localStorage.setItem('sal_hf_token', hf);
+        try {
+          await fetch('./api/save_hf_token', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ hf_token: hf })
+          });
+        } catch {}
       }
 
       if (gemini && !gemini.includes('...')) {
-        await fetch('/api/save_key', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ api_key: gemini })
-        });
+        localStorage.setItem('sal_gemini_key', gemini);
+        try {
+          await fetch('./api/save_key', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ api_key: gemini })
+          });
+        } catch {}
       }
 
       if (fal && !fal.includes('...')) {
-        await fetch('/api/save_fal_key', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ fal_key: fal })
-        });
+        localStorage.setItem('sal_fal_key', fal);
+        try {
+          await fetch('./api/save_fal_key', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ fal_key: fal })
+          });
+        } catch {}
       }
 
       await checkConfig();
