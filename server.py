@@ -16,9 +16,14 @@ import traceback
 import base64
 import time
 import io
-from PIL import Image
+try:
+    from PIL import Image
+    HAS_PIL = True
+except ImportError:
+    Image = None
+    HAS_PIL = False
 
-PORT = 8080
+PORT = int(os.environ.get('PORT', 8080))
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 REMOTE_ORIGIN = "http://localhost:8080"
 
@@ -524,9 +529,10 @@ class SalAIHandler(http.server.BaseHTTPRequestHandler):
             if user_b64:
                 try:
                     raw_bytes = base64.b64decode(user_b64)
-                    with Image.open(io.BytesIO(raw_bytes)) as uimg:
-                        input_w, input_h = uimg.size
-                        print(f"[API RENDER] User input image dimensions: {input_w}x{input_h}")
+                    if HAS_PIL and Image:
+                        with Image.open(io.BytesIO(raw_bytes)) as uimg:
+                            input_w, input_h = uimg.size
+                            print(f"[API RENDER] User input image dimensions: {input_w}x{input_h}")
                     sketch_path = os.path.join(BASE_DIR, 'latest_user_sketch.png')
                     with open(sketch_path, 'wb') as sf:
                         sf.write(raw_bytes)
@@ -803,31 +809,36 @@ class SalAIHandler(http.server.BaseHTTPRequestHandler):
 
             if not rendered_image or not rendered_image.startswith('data:'):
                 try:
-                    with Image.open(preset_file) as pim:
-                        if input_w and input_h:
-                            pim_ratio = pim.width / pim.height
-                            target_ratio = input_w / input_h
-                            if abs(pim_ratio - target_ratio) > 0.01:
-                                if pim_ratio > target_ratio:
-                                    new_h = input_h
-                                    new_w = int(input_h * pim_ratio)
+                    if HAS_PIL and Image:
+                        with Image.open(preset_file) as pim:
+                            if input_w and input_h:
+                                pim_ratio = pim.width / pim.height
+                                target_ratio = input_w / input_h
+                                if abs(pim_ratio - target_ratio) > 0.01:
+                                    if pim_ratio > target_ratio:
+                                        new_h = input_h
+                                        new_w = int(input_h * pim_ratio)
+                                    else:
+                                        new_w = input_w
+                                        new_h = int(input_w / pim_ratio)
+                                    pim_scaled = pim.resize((new_w, new_h), Image.Resampling.LANCZOS)
+                                    left = (new_w - input_w) // 2
+                                    top = (new_h - input_h) // 2
+                                    pim_final = pim_scaled.crop((left, top, left + input_w, top + input_h))
                                 else:
-                                    new_w = input_w
-                                    new_h = int(input_w / pim_ratio)
-                                pim_scaled = pim.resize((new_w, new_h), Image.Resampling.LANCZOS)
-                                left = (new_w - input_w) // 2
-                                top = (new_h - input_h) // 2
-                                pim_final = pim_scaled.crop((left, top, left + input_w, top + input_h))
+                                    pim_final = pim.resize((input_w, input_h), Image.Resampling.LANCZOS)
                             else:
-                                pim_final = pim.resize((input_w, input_h), Image.Resampling.LANCZOS)
-                        else:
-                            pim_final = pim
+                                pim_final = pim
 
-                        buf = io.BytesIO()
-                        pim_final.convert('RGB').save(buf, format='JPEG', quality=95)
-                        render_payload_b64 = base64.b64encode(buf.getvalue()).decode('utf-8')
-                        rendered_image = f"data:image/jpeg;base64,{render_payload_b64}"
-                        print(f"[API RENDER] Matched architectural render ({chosen_preset}) scaled to {pim_final.size}!")
+                            buf = io.BytesIO()
+                            pim_final.convert('RGB').save(buf, format='JPEG', quality=95)
+                            render_payload_b64 = base64.b64encode(buf.getvalue()).decode('utf-8')
+                            rendered_image = f"data:image/jpeg;base64,{render_payload_b64}"
+                            print(f"[API RENDER] Matched architectural render ({chosen_preset}) scaled to {pim_final.size}!")
+                    else:
+                        with open(preset_file, 'rb') as pf:
+                            render_payload_b64 = base64.b64encode(pf.read()).decode('utf-8')
+                            rendered_image = f"data:image/webp;base64,{render_payload_b64}"
                 except Exception as pe:
                     print(f"[API RENDER] Resize fallback notice: {pe}")
                     render_payload_b64 = SAMPLE_B64
